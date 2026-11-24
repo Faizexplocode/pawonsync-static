@@ -3,106 +3,98 @@
 @section('title', 'Dashboard Seller')
 
 @php
-    $seller = config('demo.seller');
-    $orders = config('demo.seller_orders');
-    $menus = config('demo.menus');
-    $bars = [42, 68, 51, 82, 61, 93, 72];
-    $days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+    $terlaris = collect($menus)->max('sold') ?: 1;
 @endphp
 
 @section('content')
-    <x-app-bar title="Halo, {{ $seller['name'] }}" subtitle="{{ $seller['store'] }} · {{ $seller['status'] }}">
-        <x-slot:right>
-            <span class="inline-flex items-center gap-1 rounded-full bg-mint px-2.5 py-1.5 text-[10px] font-bold text-forest">
-                <span class="size-1.5 rounded-full bg-leaf"></span>
-                Online
-            </span>
-        </x-slot:right>
-    </x-app-bar>
+    <header class="bg-[linear-gradient(148deg,var(--color-forest-deep)_0%,var(--color-leaf)_71.4%)]">
+        <x-status-bar tone="light" />
+        <div class="flex items-center gap-3 px-4 pb-[18px] pt-2.5">
+            <div class="min-w-0 flex-1 space-y-0.5">
+                <h1 class="truncate text-[18px] font-bold text-white">Halo, {{ $seller->nama }}</h1>
+                <p class="truncate text-caption text-mint">{{ $seller->email }}</p>
+            </div>
+            <span class="text-caption font-semibold text-mint">Online</span>
+        </div>
+        <div class="flex gap-2.5 px-4 pb-[18px]">
+            @foreach ([['baru', 'Pesanan baru'], ['kirim_hari_ini', 'Kirim hari ini'], ['perlu_update', 'Perlu update']] as [$kunci, $label])
+                <div class="flex-1 rounded-[14px] bg-white/15 px-3 py-2.5">
+                    <p class="text-[20px] font-bold text-white">{{ $stats[$kunci] }}</p>
+                    <p class="text-[10px] font-medium text-mint">{{ $label }}</p>
+                </div>
+            @endforeach
+        </div>
+    </header>
 
-    <main class="flex-1 space-y-4 px-4 py-4">
-        <div class="grid grid-cols-2 gap-2">
-            <x-stat-card label="Pesanan baru" value="5" sub="2 perlu konfirmasi" />
-            <x-stat-card label="Kirim hari ini" value="2" sub="1 sudah di-packing" />
-            <x-stat-card label="Perlu update" value="3" sub="Milestone tertunda" tone="dark" />
-            <x-stat-card label="Omzet hari ini" value="Rp 4,2 jt" sub="+12% vs kemarin" />
+    <main class="flex-1 space-y-4 p-4">
+        <div class="flex gap-2.5">
+            <x-stat-card tone="dark" label="Omzet hari ini" :value="'Rp '.number_format($stats['omzet_hari_ini'], 0, ',', '.')" sub="Pesanan selesai" />
+            <x-stat-card label="Porsi bulan ini" :value="$stats['porsi_bulan_ini']" sub="porsi" />
+        </div>
+        <div class="flex gap-2.5">
+            <x-stat-card label="Rating toko" :value="$stats['rating'] > 0 ? number_format($stats['rating'], 1) : '-'" :sub="$stats['reviews'].' ulasan'" />
+            <x-stat-card label="Perlu konfirmasi" :value="$stats['perlu_konfirmasi']" sub="pesanan" />
         </div>
 
-        <div class="grid grid-cols-3 gap-2">
-            <x-stat-card label="Porsi diproduksi" value="230" sub="77% kapasitas" />
-            <x-stat-card label="Rating toko" value="4.9" sub="318 ulasan" />
-            <x-stat-card label="Tepat waktu" value="96%" sub="30 hari" />
-        </div>
-
-        <section class="rounded-2xl border border-line bg-white p-4">
+        <section class="space-y-3 rounded-[18px] border border-line bg-white px-4 py-3.5">
             <div class="flex items-center justify-between">
-                <p class="text-[12px] font-bold text-forest-deep">Grafik penjualan</p>
-                <span class="text-[10px] font-bold text-leaf">+18%</span>
+                <p class="text-[15px] font-bold text-ink">Grafik Penjualan</p>
+                <x-badge color="green">7 hari</x-badge>
             </div>
-            <div class="mt-1 flex items-baseline gap-2">
-                <p class="text-[20px] font-extrabold text-forest">Rp 28,4 jt</p>
-                <span class="text-[9px] text-muted">minggu ini</span>
-            </div>
-            <div class="mt-4 flex h-28 items-end gap-2">
+            <div class="flex h-[130px] items-end gap-2">
                 @foreach ($bars as $index => $height)
-                    <div class="flex flex-1 flex-col items-center gap-1">
-                        <div class="w-full rounded-t-md {{ $index === 5 ? 'bg-forest' : 'bg-mint' }}" style="height: {{ $height }}%"></div>
-                        <span class="text-[8px] font-semibold text-muted">{{ $days[$index] }}</span>
+                    <div class="flex h-full flex-1 flex-col items-center justify-end gap-1">
+                        <div class="min-h-1 w-full rounded-t-md {{ $index === count($bars) - 1 ? 'bg-forest' : 'bg-mint' }}" style="height: {{ max(3, (int) $height) }}%"></div>
                     </div>
                 @endforeach
             </div>
-            <div class="mt-2 grid grid-cols-3 gap-1 rounded-xl bg-mist p-1 text-center text-[9px] font-bold">
-                <span class="rounded-lg bg-white py-1 text-forest-deep">Harian</span>
-                <span class="py-1 text-muted">Mingguan</span>
-                <span class="py-1 text-muted">Bulanan</span>
+            <div class="flex items-center justify-between text-[10px] font-medium text-muted">
+                @foreach ($days as $hari)
+                    <span>{{ $hari }}</span>
+                @endforeach
             </div>
         </section>
 
-        <section>
+        <div>
             <x-section-title title="Perlu Diproses" :href="route('seller.pesanan')" action="Lihat Semua" />
-            <div class="space-y-2">
-                @foreach ($orders as $order)
-                    <a href="{{ route('seller.pesanan.detail', $order['id']) }}" class="block rounded-2xl border border-line bg-white p-3">
-                        <div class="flex items-start justify-between gap-2">
-                            <div class="min-w-0">
-                                <p class="text-[12px] font-bold text-forest-deep">{{ $order['title'] }}</p>
-                                <p class="text-[9px] text-muted">{{ $order['customer'] }} · {{ $order['detail'] }}</p>
-                            </div>
-                            <x-badge :color="$order['tone']">{{ $order['status'] }}</x-badge>
+            <div class="space-y-3">
+                @forelse ($orders as $order)
+                    <a href="{{ route('seller.pesanan.detail', $order['id']) }}" class="block space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                        <div class="flex items-center justify-between gap-2">
+                            <p class="truncate text-[15px] font-bold text-ink">{{ $order['title'] }}</p>
+                            <x-badge :color="$order['tone']" class="shrink-0">{{ $order['status'] }}</x-badge>
                         </div>
-                        <div class="mt-2 flex items-center justify-between border-t border-line pt-2">
-                            <span class="text-[12px] font-extrabold text-forest">Rp {{ number_format($order['total'], 0, ',', '.') }}</span>
-                            <div class="flex gap-1.5">
-                                <span class="rounded-full border border-line px-3 py-1 text-[9px] font-bold text-muted">Tolak</span>
-                                <span class="rounded-full bg-forest px-3 py-1 text-[9px] font-bold text-white">Terima</span>
-                            </div>
+                        <p class="text-caption text-muted">{{ $order['customer'] }} · {{ $order['detail'] }}</p>
+                        <div class="flex items-center justify-between">
+                            <p class="text-body font-bold text-forest">Rp {{ number_format($order['total'], 0, ',', '.') }}</p>
+                            <span class="text-caption font-semibold text-leaf-dark">Kelola ›</span>
                         </div>
                     </a>
-                @endforeach
+                @empty
+                    <x-empty-state title="Tidak ada pesanan aktif">Pesanan baru akan muncul di sini.</x-empty-state>
+                @endforelse
             </div>
-        </section>
+        </div>
 
-        <section>
+        <div>
             <x-section-title title="Produk Terlaris" :href="route('seller.katalog')" action="Lihat Katalog" />
-            <div class="divide-y divide-line rounded-2xl border border-line bg-white">
-                @foreach (array_slice($menus, 0, 3) as $index => $menu)
-                    <div class="flex items-center gap-3 p-3">
-                        <span class="grid size-6 place-items-center rounded-lg bg-mint-soft text-[10px] font-extrabold text-forest">{{ $index + 1 }}</span>
-                        <x-photo label="Foto" class="size-10 shrink-0" />
-                        <div class="min-w-0 flex-1">
-                            <p class="truncate text-[11px] font-bold text-ink">{{ $menu['name'] }}</p>
-                            <p class="text-[9px] text-muted">{{ $menu['sold'] }} terjual</p>
+            <div class="space-y-3 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                @forelse ($menus as $index => $menu)
+                    <div class="flex items-center gap-3">
+                        <span class="grid size-[30px] shrink-0 place-items-center rounded-full bg-mint-soft text-[10.8px] font-bold text-forest">{{ $index + 1 }}</span>
+                        <div class="min-w-0 flex-1 space-y-[5px]">
+                            <div class="flex items-center justify-between gap-2">
+                                <p class="truncate text-[13px] font-semibold text-ink">{{ $menu['name'] }}</p>
+                                <p class="shrink-0 text-[11px] font-medium text-muted">{{ $menu['sold'] }} terjual</p>
+                            </div>
+                            <x-progress-bar :value="$menu['sold'] / $terlaris * 100" height="h-1.5" />
                         </div>
-                        <span class="text-[10px] font-bold text-forest">Rp {{ number_format($menu['price'], 0, ',', '.') }}</span>
                     </div>
-                @endforeach
+                @empty
+                    <p class="text-center text-caption text-muted">Belum ada menu.</p>
+                @endforelse
             </div>
-        </section>
-
-        <a href="{{ route('seller.kurir') }}" class="flex items-center justify-center gap-2 rounded-2xl bg-forest px-4 py-3.5 text-[13px] font-bold text-white">
-            <x-icon name="truck" class="size-4" />
-            Buka Departure Gate
-        </a>
+        </div>
     </main>
 
     <x-bottom-nav role="seller" active="seller.dashboard" />

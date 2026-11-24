@@ -3,78 +3,58 @@
 @section('title', 'Katalog Menu')
 
 @php
-    $menus = config('demo.menus');
-    $categories = config('demo.categories');
+    $urutLabel = ['populer' => 'Terpopuler', 'murah' => 'Termurah', 'mahal' => 'Termahal'][$urut] ?? 'Terpopuler';
 @endphp
 
 @section('content')
-    <x-app-bar title="Katalog Menu" subtitle="1.248 menu dari 86 dapur">
-        <x-slot:right>
-            <a href="#" class="inline-flex items-center gap-1 rounded-full bg-white px-3 py-2 text-[11px] font-semibold text-leaf ring-1 ring-line">
-                <x-icon name="map" class="size-3.5" />
-                Peta
-            </a>
-        </x-slot:right>
-    </x-app-bar>
+    <x-app-bar title="Katalog Menu" :subtitle="count($menus).' menu tersedia'" />
 
-    <main class="flex-1 px-4 py-4">
-        <div class="flex gap-2">
-            <div class="flex flex-1 items-center gap-2 rounded-2xl border border-line bg-white px-4 py-3 text-[12px] font-medium text-muted">
-                <x-icon name="search" class="size-4" />
-                Cari menu atau dapur...
-            </div>
-            <a href="{{ route('buyer.filter') }}" class="inline-flex items-center gap-1.5 rounded-2xl bg-forest px-3.5 py-3 text-[12px] font-bold text-white">
-                <x-icon name="filter" class="size-4" />
-                Filter 2
-            </a>
+    <main class="flex-1 space-y-3.5 p-4">
+        <div class="flex items-center gap-2.5">
+            <form action="{{ route('buyer.katalog') }}" method="get" class="flex h-11 flex-1 items-center gap-2.5 rounded-[14px] border border-line bg-white px-3.5">
+                <x-icon name="search" class="size-3.5 shrink-0 text-muted" />
+                <input type="search" name="q" value="{{ $cari }}" placeholder="Cari menu atau dapur" class="w-full bg-transparent text-[13px] text-ink outline-none placeholder:text-muted" />
+                @if ($urut !== 'populer')
+                    <input type="hidden" name="urut" value="{{ $urut }}" />
+                @endif
+            </form>
+            <a href="{{ route('buyer.filter', array_filter(['q' => $cari, 'urut' => $urut !== 'populer' ? $urut : null])) }}" class="rounded-[14px] bg-forest px-3.5 py-3 text-caption font-bold text-white">Filter</a>
         </div>
 
-        <div class="mt-4 flex gap-2 overflow-x-auto pb-1 no-scrollbar">
-            <x-chip :active="true">Semua</x-chip>
+        <div class="flex flex-wrap gap-2">
+            <x-chip :active="$cari === ''" :href="route('buyer.katalog', ['urut' => $urut])">Semua</x-chip>
             @foreach ($categories as $category)
-                <x-chip href="{{ route('buyer.filter') }}">{{ $category['name'] }}</x-chip>
+                <x-chip :active="strcasecmp($cari, $category['name']) === 0" :href="route('buyer.katalog', ['q' => $category['name'], 'urut' => $urut])">{{ $category['name'] }}</x-chip>
             @endforeach
-            <x-chip href="{{ route('buyer.filter') }}">Min 50 porsi</x-chip>
         </div>
 
-        <div class="mt-4 flex items-center justify-between text-[10px] font-semibold text-muted">
-            <span class="inline-flex items-center gap-1 text-forest">
-                Urutkan: Terpopuler
-                <x-icon name="chevron-right" class="size-3 rotate-90" />
+        <div class="flex items-center justify-between text-caption">
+            <span class="font-semibold text-leaf-dark">Urutkan: {{ $urutLabel }}</span>
+            <span class="font-medium text-muted">
+                {{ count($menus) }} hasil
+                @if ($cari !== '' || $urut !== 'populer')
+                    · <a href="{{ route('buyer.katalog') }}">Reset filter</a>
+                @endif
             </span>
-            <a href="{{ route('buyer.filter') }}" class="text-leaf">124 hasil · Reset filter</a>
         </div>
 
-        <div class="mt-3 space-y-3">
-            @foreach ($menus as $menu)
-                <a href="{{ route('buyer.menu', $menu['slug']) }}" class="flex gap-3 rounded-2xl border border-line bg-white p-3">
-                    <x-photo label="Foto" class="size-[92px] shrink-0" />
-                    <div class="min-w-0 flex-1">
-                        @if (! empty($menu['badge']))
-                            <x-badge color="mint">{{ $menu['badge'] }}</x-badge>
-                        @endif
-                        <p class="mt-1 line-clamp-1 text-[13px] font-extrabold text-ink">{{ $menu['name'] }}</p>
-                        <p class="mt-1 line-clamp-1 text-[10px] text-muted">{{ $menu['seller'] }} · {{ $menu['distance'] }} · min {{ $menu['min'] }} porsi</p>
-                        <div class="mt-1.5 flex items-center gap-1 text-[10px] text-muted">
-                            <span class="text-amber">★</span>
-                            <span class="font-semibold text-ink">{{ $menu['rating'] }}</span>
-                            <span>({{ $menu['reviews'] }})</span>
-                        </div>
-                        <div class="mt-1.5 flex items-baseline gap-1.5">
-                            <span class="text-[14px] font-extrabold text-forest">Rp {{ number_format($menu['price'], 0, ',', '.') }}</span>
-                            @if (! empty($menu['old_price']))
-                                <span class="text-[10px] text-muted line-through">Rp {{ number_format($menu['old_price'], 0, ',', '.') }}</span>
-                            @endif
-                            <span class="text-[9px] text-muted">/ porsi</span>
-                        </div>
+        @forelse ($menus as $menu)
+            <a href="{{ route('buyer.menu', $menu['id']) }}" class="flex gap-3 rounded-[18px] border border-line bg-white p-3">
+                <x-photo :src="$menu['photo']" label="Foto" class="size-[92px] shrink-0" />
+                <div class="min-w-0 flex-1 space-y-1">
+                    <p class="line-clamp-2 text-body font-semibold text-ink">{{ $menu['name'] }}</p>
+                    <p class="text-caption text-muted">{{ $menu['seller'] }} · min {{ config('katalog.min_porsi') }} porsi</p>
+                    <div class="flex items-center gap-1 text-caption">
+                        <span class="text-[13px] font-bold text-amber">★</span>
+                        <span class="font-semibold text-ink">{{ $menu['rating'] > 0 ? number_format($menu['rating'], 1) : '-' }}</span>
+                        <span class="text-muted">({{ $menu['reviews'] }})</span>
                     </div>
-                </a>
-            @endforeach
-        </div>
-
-        <div class="mt-4 rounded-2xl border border-dashed border-line p-4 text-center text-[11px] text-muted">
-            Menampilkan 6 dari 124 menu · <a href="#" class="font-semibold text-leaf">Muat lebih banyak</a>
-        </div>
+                    <p class="text-body font-bold text-forest">Rp {{ number_format($menu['price'], 0, ',', '.') }}</p>
+                </div>
+            </a>
+        @empty
+            <x-empty-state title="Menu tidak ditemukan">Tidak ada menu yang cocok dengan pencarian "{{ $cari }}".</x-empty-state>
+        @endforelse
     </main>
 
     <x-bottom-nav role="buyer" active="buyer.katalog" />

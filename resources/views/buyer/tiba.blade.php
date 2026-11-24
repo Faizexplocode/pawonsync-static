@@ -3,60 +3,66 @@
 @section('title', 'Konfirmasi Tiba')
 
 @php
-    $order = config('demo.orders')[0];
+    $bukti = $pengiriman->buktiSerahTerima;
+    $sudahTiba = $pengiriman->status->value === 'tiba';
+    $selesai = $order['status_value'] === 'selesai';
 @endphp
 
 @section('content')
-    <x-app-bar title="Konfirmasi Tiba" subtitle="Pesanan di Graha ITS" :back="route('buyer.tracking')" />
+    <x-app-bar title="Pesanan Tiba!" :subtitle="$sudahTiba ? 'Kurir sudah tiba di venue' : 'Kurir dalam perjalanan'" :back="route('buyer.tracking', $order['id'])" />
 
-    <main class="flex-1 space-y-4 px-4 py-4">
-        <section class="flex flex-col items-center rounded-3xl bg-forest px-5 py-6 text-center text-white">
-            <span class="grid size-14 place-items-center rounded-full bg-mint text-forest"><x-icon name="location" class="size-7" /></span>
-            <h2 class="mt-3 text-[19px] font-extrabold">Kurir sudah tiba</h2>
-            <p class="mt-1 text-[11px] text-mint/80">{{ $order['courier'] }} · {{ $order['vehicle'] }}</p>
-        </section>
+    <main class="flex-1 space-y-3.5 p-4">
+        <p class="text-body font-medium text-ink">Pesanan {{ $order['title'] }} dari {{ $order['seller'] }} {{ $sudahTiba ? 'sudah tiba di venue.' : 'sedang dalam perjalanan ke venue.' }}</p>
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <p class="text-[12px] font-bold text-forest-deep">Bukti serah terima</p>
-            <x-photo label="Foto serah terima" class="mt-2 h-40 w-full" />
-            <div class="mt-3 grid grid-cols-2 gap-2">
-                <div class="rounded-xl bg-mist p-3">
-                    <p class="text-[9px] font-semibold text-muted">Diterima oleh</p>
-                    <p class="mt-0.5 text-[11px] font-bold text-ink">Bu Diana</p>
-                </div>
-                <div class="rounded-xl bg-mist p-3">
-                    <p class="text-[9px] font-semibold text-muted">Waktu</p>
-                    <p class="mt-0.5 text-[11px] font-bold text-ink">10.28 WIB</p>
-                </div>
+        <x-photo :src="$bukti?->foto_url" :label="$bukti ? 'Foto serah terima diunggah '.$bukti->waktu?->locale('id')->translatedFormat('j M, H.i') : 'Kurir belum mengunggah bukti serah terima'" class="h-[230px] w-full rounded-[20px]" />
+
+        <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <p class="text-body font-bold text-ink">Bukti serah terima</p>
+            <div class="flex items-center justify-between text-[13px]">
+                <span class="text-muted">Diserahkan oleh</span>
+                <span class="font-semibold text-ink">{{ $order['courier'] }}</span>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+                <span class="text-muted">Diterima oleh</span>
+                <span class="font-semibold text-ink">{{ $order['buyer'] }}</span>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+                <span class="text-muted">Jumlah box</span>
+                <span class="font-semibold text-ink">{{ $order['porsi'] }} box</span>
             </div>
         </section>
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <p class="text-[12px] font-bold text-forest-deep">Checklist pesanan</p>
-            <div class="mt-2 space-y-2">
-                @foreach ([
-                    ['Jumlah sesuai (150 box)', true],
-                    ['Menu dan opsi tambahan sesuai', true],
-                    ['Kemasan utuh & tidak rusak', true],
-                    ['Dokumentasi diterima', true],
-                ] as [$label, $done])
-                    <div class="flex items-center gap-2 text-[11px]">
-                        <span @class(['grid size-4.5 place-items-center rounded-full text-white', 'bg-leaf' => $done, 'bg-line' => ! $done])>
-                            @if ($done)<x-icon name="check" class="size-2.5" />@endif
-                        </span>
-                        <span class="text-muted">{{ $label }}</span>
-                    </div>
-                @endforeach
-            </div>
+        <section class="space-y-1.5 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <p class="text-body font-bold text-ink">Periksa kondisi pesanan</p>
+            @foreach ([
+                ['Jumlah box sesuai ('.$order['porsi'].' box)', true],
+                ['Menu dan opsi tambahan sesuai', true],
+                ['Kemasan utuh & tidak rusak', true],
+                ['Bukti dokumentasi tersedia', $bukti !== null],
+            ] as [$label, $done])
+                <div class="flex items-center gap-3 py-1">
+                    <span @class([
+                        'grid size-[22px] shrink-0 place-items-center rounded-[7px] border-2 text-[12px] font-bold',
+                        'border-leaf-dark bg-leaf-dark text-white' => $done,
+                        'border-line bg-white text-transparent' => ! $done,
+                    ])>✓</span>
+                    <span class="text-body font-medium text-ink">{{ $label }}</span>
+                </div>
+            @endforeach
         </section>
 
-        <div class="rounded-2xl bg-amber-soft p-3 text-[10px] leading-relaxed text-amber">
-            Pastikan kamu memeriksa pesanan sebelum menekan konfirmasi. Setelah dikonfirmasi, pesanan dianggap selesai.
-        </div>
-
-        <a href="{{ route('buyer.ulasan') }}" class="flex items-center justify-center gap-2 rounded-2xl bg-forest px-4 py-3.5 text-[14px] font-bold text-white">
-            <x-icon name="check" class="size-4" />
-            Konfirmasi diterima
-        </a>
+        <x-badge color="green" class="whitespace-normal">Dana pesanan diteruskan ke seller setelah kamu konfirmasi</x-badge>
     </main>
+
+    <div class="sticky bottom-0 z-20 mt-auto flex items-center gap-2.5 border-t border-line bg-white px-4 py-3">
+        @if (! $selesai)
+            <x-button variant="outline" :href="route('buyer.beranda')" class="flex-1">Nanti Saja</x-button>
+            <form action="{{ route('buyer.tiba.konfirmasi', $order['id']) }}" method="post" class="flex-1">
+                @csrf
+                <x-button type="submit" class="text-[12px]">Konfirmasi Diterima</x-button>
+            </form>
+        @else
+            <x-button :href="route('buyer.ulasan', $order['id'])">Beri Ulasan</x-button>
+        @endif
+    </div>
 @endsection

@@ -3,86 +3,50 @@
 @section('title', 'Update Milestone')
 
 @php
-    $milestones = [
-        ['code' => 'M1', 'title' => 'Bahan diterima', 'desc' => 'Belanja bahan selesai & dicek kualitasnya', 'time' => '11 Okt 06.00', 'done' => true],
-        ['code' => 'M2', 'title' => 'Produksi dimulai', 'desc' => 'Dapur mulai memasak 150 porsi', 'time' => '11 Okt 09.00', 'done' => true],
-        ['code' => 'M3', 'title' => 'Packing selesai', 'desc' => 'Semua box tertutup & berlabel', 'time' => '12 Okt 08.30', 'done' => false],
-        ['code' => 'M4', 'title' => 'Siap diambil kurir', 'desc' => 'Pesanan menunggu di departure gate', 'time' => '12 Okt 09.30', 'done' => false],
-        ['code' => 'M5', 'title' => 'Terkirim', 'desc' => 'Kurir menyerahkan ke buyer', 'time' => '12 Okt 10.30', 'done' => false],
-    ];
+    $selesaiCount = collect($milestones)->where('done', true)->count();
+    $nextMilestone = collect($milestones)->firstWhere('done', false);
 @endphp
 
 @section('content')
-    <x-app-bar title="Update Milestone" subtitle="Wisuda ITS · 150 porsi" :back="route('seller.pesanan.detail', 'wisuda-its')" />
+    <x-app-bar title="Update Milestone" :subtitle="$order['title'].' · '.$order['porsi'].' porsi'" :back="route('seller.pesanan.detail', $order['id'])" />
 
-    <main class="flex-1 space-y-4 px-4 py-4">
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <div class="flex items-center justify-between">
-                <p class="text-[12px] font-bold text-forest-deep">Progres pesanan</p>
-                <span class="text-[10px] font-bold text-leaf">2 dari 5 selesai</span>
-            </div>
-            <div class="mt-2"><x-progress-bar :value="40" /></div>
-            <p class="mt-2 text-[10px] text-muted">Target selesai: 12 Okt 2026, 10.30 WIB</p>
-        </section>
+    <form action="{{ route('seller.milestone.store', $order['id']) }}" method="post" enctype="multipart/form-data" class="flex flex-1 flex-col">
+        @csrf
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <p class="text-[12px] font-bold text-forest-deep">Pilih milestone</p>
-            <div class="mt-3 space-y-2">
-                @foreach ($milestones as $milestone)
-                    <label @class([
-                        'flex cursor-pointer items-start gap-3 rounded-xl border p-3',
-                        'border-leaf bg-mint-soft' => $loop->index === 2,
-                        'border-line bg-white' => $loop->index !== 2,
-                    ])>
-                        <span @class([
-                            'mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-white',
-                            'bg-leaf' => $milestone['done'],
-                            'border-2 border-leaf bg-white' => ! $milestone['done'] && $loop->index === 2,
-                            'border-2 border-line bg-white' => ! $milestone['done'] && $loop->index !== 2,
-                        ])>
-                            @if ($milestone['done'])
-                                <x-icon name="check" class="size-3" />
-                            @elseif ($loop->index === 2)
-                                <span class="size-2 rounded-full bg-leaf"></span>
-                            @endif
-                        </span>
-                        <span class="min-w-0 flex-1">
-                            <span class="flex items-center justify-between gap-2">
-                                <span class="text-[11px] font-bold {{ $milestone['done'] ? 'text-forest-deep' : 'text-ink' }}">{{ $milestone['title'] }}</span>
-                                <span class="shrink-0 text-[9px] font-semibold text-muted">{{ $milestone['time'] }}</span>
-                            </span>
-                            <span class="mt-0.5 block text-[9px] leading-relaxed text-muted">{{ $milestone['desc'] }}</span>
-                        </span>
-                    </label>
-                @endforeach
-            </div>
-        </section>
+        <main class="flex-1 space-y-3.5 p-4">
+            <x-badge color="green" class="whitespace-normal">Update ini otomatis dikirim ke pembeli sebagai notifikasi</x-badge>
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <p class="text-[12px] font-bold text-forest-deep">Bukti milestone</p>
-            <div class="mt-2 grid grid-cols-3 gap-2">
-                <x-photo label="Foto dapur" class="h-20" />
-                <x-photo label="Foto box" class="h-20" />
-                <x-photo label="+ Foto" class="h-20 border border-dashed border-line bg-white text-muted" />
-            </div>
-            <label class="mt-3 block">
-                <span class="mb-1.5 block text-[11px] font-semibold text-forest-deep">Catatan untuk buyer</span>
-                <textarea rows="3" placeholder="Contoh: packing selesai 08.20, menunggu kurir..." class="w-full rounded-xl border border-line bg-mist px-3 py-2.5 text-[11px] leading-relaxed text-ink outline-none placeholder:text-muted/70 focus:border-leaf focus:ring-2 focus:ring-mint"></textarea>
+            <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                <div class="flex items-center justify-between">
+                    <p class="text-body font-bold text-ink">Progres pesanan</p>
+                    <span class="text-caption font-semibold text-leaf-dark">{{ $selesaiCount }} dari {{ count($milestones) }} selesai</span>
+                </div>
+                <x-progress-bar :value="$progress / 4 * 100" />
+                <p class="text-[11px] text-muted">Jadwal antar: {{ $order['tanggal'] }}, {{ $order['jam'] }} WIB</p>
+            </section>
+
+            <p class="text-body font-bold text-ink">Pilih status saat ini</p>
+            @foreach ($milestones as $milestone)
+                <x-radio-card name="status" :value="$milestone['status']->value" :title="$milestone['title']" :note="$milestone['desc'].($milestone['done'] ? ' · Selesai '.$milestone['time'] : '')" :checked="$nextMilestone && $nextMilestone['status'] === $milestone['status']" />
+            @endforeach
+
+            <p class="text-body font-bold text-ink">Foto bukti (opsional)</p>
+            <input type="file" name="foto" accept="image/*" class="w-full rounded-xl border border-line bg-white px-3.5 py-[13px] text-caption text-ink" />
+
+            <label class="block">
+                <span class="mb-1.5 block text-caption font-medium text-muted">Catatan untuk pembeli</span>
+                <textarea name="catatan" rows="3" placeholder="Contoh: packing selesai 08.20, menunggu kurir..." class="w-full rounded-xl border border-line bg-white px-3.5 py-[13px] text-body text-ink outline-none placeholder:text-muted/70 focus:border-leaf">{{ old('catatan') }}</textarea>
             </label>
-        </section>
 
-        <label class="flex items-start gap-2 rounded-2xl bg-white p-3 text-[10px] leading-relaxed text-muted ring-1 ring-line">
-            <input type="checkbox" checked class="mt-0.5 size-4 rounded border-line text-leaf focus:ring-mint" />
-            Kirim notifikasi otomatis ke buyer saat milestone diperbarui.
-        </label>
+            <a href="{{ route('seller.packaging', $order['id']) }}" class="flex items-center gap-3 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-mint-soft text-caption font-bold text-forest">Pk</span>
+                <span class="min-w-0 flex-1 text-body font-semibold text-ink">Lanjut ke packaging</span>
+                <span class="text-[18px] font-medium text-muted">›</span>
+            </a>
+        </main>
 
-        <a href="{{ route('seller.pesanan.detail', 'wisuda-its') }}" class="flex items-center justify-center gap-2 rounded-2xl bg-forest px-4 py-3.5 text-[13px] font-bold text-white">
-            <x-icon name="check" class="size-4" />
-            Simpan &amp; update buyer
-        </a>
-        <a href="{{ route('seller.packaging') }}" class="flex items-center justify-center gap-2 rounded-2xl border border-line bg-white px-4 py-3 text-[12px] font-bold text-forest-deep">
-            <x-icon name="package" class="size-4" />
-            Lanjut ke packaging
-        </a>
-    </main>
+        <div class="sticky bottom-0 z-20 mt-auto border-t border-line bg-white px-4 py-3">
+            <x-button type="submit">Kirim Update ke Buyer</x-button>
+        </div>
+    </form>
 @endsection

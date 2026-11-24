@@ -3,78 +3,70 @@
 @section('title', 'Live Tracking')
 
 @php
-    $order = config('demo.orders')[0];
+    $statusKirim = $pengiriman->status->value;
+    $berangkat = $pengiriman->waktu_berangkat !== null || in_array($statusKirim, ['berangkat', 'dalam_perjalanan', 'tiba'], true);
+    $dalamPerjalanan = in_array($statusKirim, ['berangkat', 'dalam_perjalanan', 'tiba'], true);
+    $tiba = $statusKirim === 'tiba';
 @endphp
 
 @section('content')
-    <x-app-bar title="Live Tracking" subtitle="Pesanan sedang dalam perjalanan" :back="route('buyer.pesanan.detail', $order['id'])" />
+    <x-app-bar title="Pengiriman Live" subtitle="Diperbarui otomatis" :back="route('buyer.pesanan.detail', $order['id'])">
+        <x-slot:right>
+            <span class="text-caption font-semibold text-leaf-dark">{{ $pengiriman->status->label() }}</span>
+        </x-slot:right>
+    </x-app-bar>
 
-    <main class="flex-1 space-y-4 px-4 py-4">
-        <section class="relative h-56 overflow-hidden rounded-3xl border border-line bg-mint-soft">
+    <main class="flex-1 space-y-3.5 p-4">
+        <section class="relative h-[300px] overflow-hidden rounded-[20px] bg-linear-[132deg] from-mint-soft from-0% to-mint to-70%">
             <div class="absolute inset-0 opacity-60 [background-image:linear-gradient(#c7e6d5_1px,transparent_1px),linear-gradient(90deg,#c7e6d5_1px,transparent_1px)] [background-size:28px_28px]"></div>
             <div class="absolute left-6 top-10 size-3 rounded-full bg-forest ring-4 ring-forest/20"></div>
-            <div class="absolute right-8 bottom-10 size-3 rounded-full bg-amber ring-4 ring-amber/20"></div>
+            <div class="absolute bottom-10 right-8 size-3 rounded-full bg-amber ring-4 ring-amber/20"></div>
             <div class="absolute left-[8%] top-[46%] h-1 w-[80%] -rotate-6 rounded-full bg-leaf/40"></div>
-            <div class="absolute left-[42%] top-[38%] grid size-9 -translate-x-1/2 place-items-center rounded-full bg-white text-leaf shadow-lg ring-1 ring-line">
+            <div class="absolute left-[42%] top-[38%] grid size-9 -translate-x-1/2 place-items-center rounded-full bg-white text-leaf-dark shadow-lg">
                 <x-icon name="bike" class="size-5" />
             </div>
-            <span class="absolute bottom-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold text-forest-deep">Graha ITS</span>
-            <span class="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[9px] font-bold text-forest-deep">Pawon Lestari</span>
+            <span class="absolute bottom-3 left-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-forest-deep">{{ $order['title'] }}</span>
+            <span class="absolute right-3 top-3 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-semibold text-forest-deep">{{ $order['seller'] }}</span>
         </section>
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <div class="flex items-center justify-between">
-                <div>
-                    <p class="text-[10px] font-semibold text-muted">Estimasi tiba</p>
-                    <p class="text-[20px] font-extrabold text-forest">10.30</p>
+        <section class="space-y-1.5 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <div class="flex items-center justify-between gap-2">
+                <div class="min-w-0 flex-1 space-y-0.5">
+                    <p class="text-heading-l font-bold text-forest">{{ $pengiriman->eta_menit ? 'ETA '.$pengiriman->eta_menit.' menit' : 'ETA -' }}</p>
+                    <p class="text-caption text-muted">
+                        @if ($terakhir)
+                            Lokasi terakhir {{ number_format((float) $terakhir->latitude, 5) }}, {{ number_format((float) $terakhir->longitude, 5) }} · {{ $terakhir->waktu?->locale('id')->diffForHumans() }}
+                        @else
+                            Kurir belum mengirim titik lokasi.
+                        @endif
+                    </p>
                 </div>
-                <div class="text-right">
-                    <p class="text-[10px] font-semibold text-muted">Sisa jarak</p>
-                    <p class="text-[13px] font-bold text-forest-deep">3,2 km</p>
-                </div>
+                <x-badge color="green" class="shrink-0">{{ $pengiriman->status->label() }}</x-badge>
             </div>
-            <div class="mt-3"><x-progress-bar :value="68" /></div>
-            <p class="mt-1.5 text-[10px] text-muted">Kurir sedang di Jl. Arief Rahman Hakim.</p>
+            <x-progress-bar :value="$progress" />
         </section>
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <div class="flex items-center gap-3">
-                <span class="grid size-11 place-items-center rounded-full bg-mint text-[13px] font-extrabold text-forest">BS</span>
-                <div class="min-w-0 flex-1">
-                    <p class="text-[13px] font-bold text-ink">{{ $order['courier'] }}</p>
-                    <p class="text-[10px] text-muted">{{ $order['vehicle'] }} · ★ 4.9</p>
-                </div>
-                <div class="flex gap-1.5">
-                    <a href="#" class="grid size-9 place-items-center rounded-full bg-mint-soft text-forest"><x-icon name="phone" class="size-4" /></a>
-                    <a href="#" class="grid size-9 place-items-center rounded-full bg-mint-soft text-forest"><x-icon name="mail" class="size-4" /></a>
-                </div>
+        <section class="flex items-center gap-3 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <span class="grid size-12 shrink-0 place-items-center rounded-full bg-forest text-[17px] font-bold text-white">{{ strtoupper(substr($order['courier'], 0, 2)) }}</span>
+            <div class="min-w-0 flex-1 space-y-0.5">
+                <p class="text-[15px] font-bold text-ink">{{ $order['courier'] }}</p>
+                <p class="text-caption text-muted">{{ $pengiriman->waktu_berangkat ? 'Berangkat '.$pengiriman->waktu_berangkat->locale('id')->translatedFormat('j M, H.i') : 'Belum berangkat' }}</p>
             </div>
         </section>
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <p class="text-[12px] font-bold text-forest-deep">Riwayat perjalanan</p>
-            <div class="mt-3 space-y-3">
-                @foreach ([
-                    ['Pesanan diambil kurir', '09.48 · Pawon Lestari', true],
-                    ['Dalam perjalanan', '09.55 · Jl. Arief Rahman Hakim', true],
-                    ['Tiba di venue', 'Estimasi 10.30 · Graha ITS', false],
-                ] as [$title, $desc, $done])
-                    <div class="flex gap-3">
-                        <span @class(['mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-white', 'bg-leaf' => $done, 'bg-line text-muted' => ! $done])>
-                            @if ($done)<x-icon name="check" class="size-3" />@else<span class="size-1.5 rounded-full bg-muted"></span>@endif
-                        </span>
-                        <div>
-                            <p class="text-[11px] font-bold {{ $done ? 'text-forest-deep' : 'text-muted' }}">{{ $title }}</p>
-                            <p class="text-[9px] text-muted">{{ $desc }}</p>
-                        </div>
-                    </div>
-                @endforeach
-            </div>
-        </section>
+        <p class="text-[15px] font-bold text-ink">Progres Pengiriman</p>
+        <div>
+            <x-timeline-item title="Kurir Berangkat" :note="'Departure Gate dari '.$order['seller']" :time="$pengiriman->waktu_berangkat?->format('H.i')" :done="$berangkat" />
+            <x-timeline-item title="Dalam Perjalanan" :note="$terakhir ? 'Titik terakhir '.$terakhir->waktu?->format('H.i') : null" :done="$dalamPerjalanan" />
+            <x-timeline-item title="Tiba di Lokasi" :time="$order['jam']" :done="$tiba" :last="true" />
+        </div>
 
-        <a href="{{ route('buyer.tiba') }}" class="flex items-center justify-center gap-2 rounded-2xl bg-forest px-4 py-3.5 text-[14px] font-bold text-white">
-            <x-icon name="check" class="size-4" />
-            Pesanan sudah tiba
-        </a>
+        @if ($lokasi->isNotEmpty())
+            <x-badge color="green" class="whitespace-normal">Live location aktif · {{ $lokasi->count() }} titik tercatat</x-badge>
+        @endif
     </main>
+
+    <div class="sticky bottom-0 z-20 mt-auto border-t border-line bg-white px-4 py-3">
+        <x-button :href="route('buyer.tiba', $order['id'])">Pesanan sudah tiba? Konfirmasi</x-button>
+    </div>
 @endsection

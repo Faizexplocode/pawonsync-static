@@ -2,86 +2,78 @@
 
 @section('title', 'Packaging')
 
-@php
-    $checklist = [
-        ['Nasi box tertutup rapat', true],
-        ['Label nama & jumlah porsi', true],
-        ['Sambal dipisah (20 box)', true],
-        ['Sendok & tisu masuk', false],
-        ['Box dihitung ulang', false],
-        ['Foto keseluruhan box', false],
-    ];
-@endphp
-
 @section('content')
-    <x-app-bar title="Packaging" subtitle="Wisuda ITS · 150 box" :back="route('seller.milestone')">
-        <x-slot:right>
-            <a href="#" class="rounded-full bg-mint-soft px-3 py-1.5 text-[10px] font-bold text-forest">Cetak label</a>
-        </x-slot:right>
-    </x-app-bar>
+    <x-app-bar title="Pengemasan" :subtitle="$order['title'].' · Target '.$order['porsi'].' kotak'" :back="route('seller.milestone', $order['id'])" />
 
-    <main class="flex-1 space-y-4 px-4 py-4">
-        <section class="grid grid-cols-3 gap-2">
-            <x-stat-card label="Target" value="150" sub="box" />
-            <x-stat-card label="Selesai" value="98" sub="65%" />
-            <x-stat-card label="Sisa" value="52" sub="box" tone="dark" />
-        </section>
+    <form action="{{ route('seller.packaging.store', $order['id']) }}" method="post" class="flex flex-1 flex-col">
+        @csrf
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <div class="flex items-center justify-between">
-                <p class="text-[12px] font-bold text-forest-deep">Progres packing</p>
-                <span class="text-[10px] font-bold text-leaf">65%</span>
-            </div>
-            <div class="mt-2"><x-progress-bar :value="65" /></div>
-            <div class="mt-3 grid grid-cols-2 gap-2 text-[10px]">
-                <div class="rounded-xl bg-mist p-2.5">
-                    <p class="font-semibold text-muted">Nasi box</p>
-                    <p class="mt-0.5 font-bold text-forest-deep">98 / 150</p>
+        <main class="flex-1 space-y-3.5 p-4">
+            <section class="space-y-2 rounded-[22px] bg-[linear-gradient(135deg,var(--color-forest-deep)_0%,var(--color-leaf)_71.4%)] p-[18px] text-center">
+                <p class="text-caption font-medium text-mint">Counter Kotak</p>
+                <p id="packaging-angka" class="text-[64px] font-bold leading-none text-white">{{ $packaging->jumlah_box }}</p>
+                <p class="text-caption text-mint">dari {{ $order['porsi'] }} kotak selesai dikemas</p>
+                <div class="h-2.5 w-full overflow-hidden rounded-full bg-mint-soft">
+                    <div id="packaging-bar" class="h-full rounded-full bg-mint-mid" style="width: {{ $persen }}%"></div>
                 </div>
-                <div class="rounded-xl bg-mist p-2.5">
-                    <p class="font-semibold text-muted">Es teh</p>
-                    <p class="mt-0.5 font-bold text-forest-deep">98 / 150</p>
+                <div class="flex items-center justify-center gap-3.5 pt-1">
+                    <button type="button" id="packaging-kurang" class="grid size-[60px] place-items-center rounded-full border border-mint-mid text-[30px] font-bold text-white" aria-label="Kurangi">−</button>
+                    <button type="button" id="packaging-tambah" class="grid size-[60px] place-items-center rounded-full border border-mint-mid bg-mint text-[30px] font-bold text-forest-deep" aria-label="Tambah">+</button>
                 </div>
-            </div>
-        </section>
+                <p class="text-[11px] font-medium text-mint">Tekan + setiap 1 kotak selesai dikemas</p>
+                <input type="number" id="packaging-input" name="jumlah_box" min="0" max="{{ $order['porsi'] }}" value="{{ old('jumlah_box', $packaging->jumlah_box) }}" class="sr-only" required />
+            </section>
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <p class="text-[12px] font-bold text-forest-deep">Checklist packaging</p>
-            <div class="mt-3 space-y-2.5">
-                @foreach ($checklist as [$label, $checked])
-                    <label class="flex cursor-pointer items-center gap-3">
-                        <span @class(['grid size-5 shrink-0 place-items-center rounded-md border-2', 'border-leaf bg-leaf text-white' => $checked, 'border-line bg-white' => ! $checked])>
-                            @if ($checked)<x-icon name="check" class="size-3" />@endif
-                        </span>
-                        <span class="text-[11px] {{ $checked ? 'font-semibold text-forest-deep' : 'text-muted' }}">{{ $label }}</span>
-                    </label>
-                @endforeach
-            </div>
-        </section>
+            <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                <div class="flex items-center justify-between">
+                    <p class="text-body font-bold text-ink">Progress Pengemasan</p>
+                    <x-badge color="green">{{ round($persen) }}%</x-badge>
+                </div>
+                <x-progress-bar :value="$persen" />
+                <div class="flex items-center justify-between text-[13px]">
+                    <span class="text-muted">Sisa</span>
+                    <span class="font-semibold text-ink">{{ max(0, $order['porsi'] - $packaging->jumlah_box) }} kotak</span>
+                </div>
+                <div class="flex items-center justify-between text-[13px]">
+                    <span class="text-muted">Status</span>
+                    <span @class(['font-semibold', 'text-leaf' => $packaging->selesai, 'text-amber' => ! $packaging->selesai])>{{ $packaging->selesai ? 'Siap kirim' : 'Belum selesai' }}</span>
+                </div>
+            </section>
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <div class="flex items-center justify-between">
-                <p class="text-[12px] font-bold text-forest-deep">Dokumentasi</p>
-                <span class="text-[9px] text-muted">Min. 1 foto</span>
-            </div>
-            <div class="mt-2 grid grid-cols-2 gap-2">
-                <x-photo label="Foto box selesai" class="h-24" />
-                <x-photo label="+ Ambil foto" class="h-24 border border-dashed border-line bg-white text-muted" />
-            </div>
-            <label class="mt-3 block">
-                <span class="mb-1.5 block text-[11px] font-semibold text-forest-deep">Catatan packing</span>
-                <textarea rows="2" placeholder="Contoh: 20 box tanpa sambal, label A1–A20..." class="w-full rounded-xl border border-line bg-mist px-3 py-2.5 text-[11px] text-ink outline-none placeholder:text-muted/70 focus:border-leaf focus:ring-2 focus:ring-mint"></textarea>
+            <label class="flex cursor-pointer items-center gap-3 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                <input type="checkbox" name="selesai" value="1" @checked($packaging->selesai) class="peer sr-only" />
+                <span class="grid size-[22px] shrink-0 place-items-center rounded-[7px] border-2 border-line bg-white text-[12px] font-bold text-transparent peer-checked:border-leaf-dark peer-checked:bg-leaf-dark peer-checked:text-white">✓</span>
+                <span class="min-w-0 flex-1 space-y-0.5">
+                    <span class="block text-body font-semibold text-ink">Packing selesai &amp; siap diambil kurir</span>
+                    <span class="block text-[11px] text-muted">Menandai pesanan siap kirim dan memberi tahu buyer bahwa kurir akan segera ditugaskan.</span>
+                </span>
             </label>
-        </section>
 
-        <section class="rounded-2xl bg-mint-soft p-3 text-[10px] leading-relaxed text-forest">
-            <p class="font-bold">Tips packaging</p>
-            <p class="mt-0.5 text-leaf-dark">Susun box per 25 pcs agar mudah dihitung kurir. Tempel label jumlah porsi di box paling depan.</p>
-        </section>
+            <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                <p class="text-body font-bold text-ink">Tips packaging</p>
+                <p class="text-caption font-medium text-leaf-dark">Susun box per 25 pcs agar mudah dihitung kurir. Tempel label jumlah porsi di box paling depan.</p>
+            </section>
+        </main>
 
-        <a href="{{ route('seller.kurir') }}" class="flex items-center justify-center gap-2 rounded-2xl bg-forest px-4 py-3.5 text-[13px] font-bold text-white">
-            <x-icon name="truck" class="size-4" />
-            Tandai siap &amp; panggil kurir
-        </a>
-    </main>
+        <div class="sticky bottom-0 z-20 mt-auto border-t border-line bg-white px-4 py-3">
+            <x-button type="submit">Selesai Kemas - Kirim Update</x-button>
+        </div>
+    </form>
+
+    <script>
+        (() => {
+            const input = document.getElementById('packaging-input');
+            const angka = document.getElementById('packaging-angka');
+            const bar = document.getElementById('packaging-bar');
+            const sinkron = (nilai) => {
+                const min = Number(input.min);
+                const max = Number(input.max);
+                input.value = Math.min(max, Math.max(min, nilai));
+                angka.textContent = input.value;
+                bar.style.width = (max > 0 ? (input.value / max) * 100 : 0) + '%';
+            };
+            document.getElementById('packaging-tambah').addEventListener('click', () => sinkron(Number(input.value) + 1));
+            document.getElementById('packaging-kurang').addEventListener('click', () => sinkron(Number(input.value) - 1));
+        })();
+    </script>
 @endsection

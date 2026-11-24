@@ -22,6 +22,32 @@
     --color-muted: #5e6f66;
     --color-amber: #b7791f;
     --color-amber-soft: #fff4d6;
+
+    /* Token tambahan dari Figma Design System (node 59:3) */
+    --color-forest-night: #042417;
+    --color-leaf-light: #5cc48f;
+    --color-mint-faint: #f1fbf5;
+    --color-danger: #c0392b;
+    --color-danger-soft: #fdecea;
+    --color-danger-faint: #fff8f7;
+    --color-info: #1b6ca8;
+    --color-info-soft: #e3f0fa;
+    --color-disabled: #c7d5cc;
+    --color-disabled-text: #6f837a;
+    --color-disabled-faint: #f1f4f2;
+
+    --text-heading-xl: 24px;
+    --text-heading-xl--line-height: 1.25;
+    --text-heading-l: 20px;
+    --text-heading-l--line-height: 1.25;
+    --text-title: 16px;
+    --text-title--line-height: 1.25;
+    --text-body: 14px;
+    --text-body--line-height: 1.285;
+    --text-caption: 12px;
+    --text-caption--line-height: 1.25;
+
+    --radius-card: 16px;
 }
 
 @layer base {
@@ -36,6 +62,10 @@
     * {
         -webkit-tap-highlight-color: transparent;
     }
+}
+
+@utility bg-brand-gradient {
+    background-image: linear-gradient(to right, var(--color-forest-deep), var(--color-mint-mid));
 }
 
 @utility no-scrollbar {

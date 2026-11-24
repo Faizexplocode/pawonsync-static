@@ -1,17 +1,15 @@
 @props(['title', 'subtitle' => null, 'back' => null])
 
-<header class="sticky top-0 z-20 border-b border-line/70 bg-mist/90 backdrop-blur-md">
+<header class="sticky top-0 z-20 bg-white">
     <x-status-bar />
-    <div class="flex items-center gap-2 px-4 pb-3 pt-1">
+    <div class="flex items-center gap-3 px-4 py-2.5">
         @if ($back)
-            <a href="{{ $back }}" class="grid size-9 shrink-0 place-items-center rounded-full bg-white text-forest-deep shadow-sm ring-1 ring-line" aria-label="Kembali">
-                <x-icon name="chevron-left" class="size-5" />
-            </a>
+            <a href="{{ $back }}" class="shrink-0 px-0.5 text-[28px] font-medium leading-none text-ink" aria-label="Kembali">‹</a>
         @endif
-        <div class="min-w-0 flex-1">
-            <h1 class="truncate text-[17px] font-extrabold leading-tight tracking-tight text-forest-deep">{{ $title }}</h1>
+        <div class="min-w-0 flex-1 space-y-0.5">
+            <h1 class="truncate text-[18px] font-bold text-ink">{{ $title }}</h1>
             @if ($subtitle)
-                <p class="truncate text-[11px] font-medium text-muted">{{ $subtitle }}</p>
+                <p class="truncate text-caption text-muted">{{ $subtitle }}</p>
             @endif
         </div>
         @isset($right)

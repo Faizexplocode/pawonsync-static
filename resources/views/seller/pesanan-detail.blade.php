@@ -3,110 +3,132 @@
 @section('title', 'Detail Pesanan Seller')
 
 @php
-    $steps = [
-        ['Pesanan masuk', '12 Okt 08.14', true],
-        ['Dikonfirmasi seller', '12 Okt 08.20', true],
-        ['Produksi dimulai', '11 Okt 06.00', false],
-        ['Siap kirim', '12 Okt 10.00', false],
-        ['Diterima buyer', '12 Okt 10.30', false],
-    ];
+    $pembayaran = $order['pembayaran'];
+    $pengiriman = $order['pengiriman'];
+    $statusValue = $order['status_value'];
 @endphp
 
 @section('content')
-    <x-app-bar title="Detail Pesanan" :subtitle="'PS-' . strtoupper($order['id'])" :back="route('seller.pesanan')">
-        <x-slot:right>
-            <x-badge :color="$order['tone']">{{ $order['status'] }}</x-badge>
-        </x-slot:right>
-    </x-app-bar>
+    <x-app-bar title="Detail Pesanan" :subtitle="$order['kode']" :back="route('seller.pesanan')" />
 
-    <main class="flex-1 space-y-4 px-4 py-4">
-        <section class="rounded-2xl bg-forest p-4 text-white">
-            <p class="text-[10px] font-semibold uppercase tracking-wide text-mint/70">Nilai pesanan</p>
-            <p class="mt-1 text-[26px] font-extrabold leading-none">Rp {{ number_format($order['total'], 0, ',', '.') }}</p>
-            <div class="mt-3 grid grid-cols-3 gap-2 border-t border-white/15 pt-3 text-center">
-                <div><p class="text-[13px] font-extrabold">150</p><p class="text-[9px] text-mint/70">Porsi</p></div>
-                <div><p class="text-[13px] font-extrabold">11.00</p><p class="text-[9px] text-mint/70">Jam antar</p></div>
-                <div><p class="text-[13px] font-extrabold">12 Okt</p><p class="text-[9px] text-mint/70">Tanggal</p></div>
+    <main class="flex-1 space-y-3.5 p-4">
+        <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <div class="flex items-center justify-between gap-2">
+                <p class="truncate text-[15px] font-bold text-ink">{{ $order['title'] }} - {{ $order['buyer'] }}</p>
+                <x-badge :color="$order['tone']" class="shrink-0">{{ $order['status'] }}</x-badge>
+            </div>
+            <p class="text-caption text-muted">{{ $order['porsi'] }} porsi · {{ $order['tanggal'] }}, {{ $order['jam'] }}</p>
+        </section>
+
+        <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <p class="text-body font-bold text-ink">Alamat pengiriman</p>
+            <p class="text-[13px] text-ink">{{ $order['alamat'] }}</p>
+            <div class="flex items-center justify-between text-[13px]">
+                <span class="text-muted">Pemesan</span>
+                <span class="font-semibold text-ink">{{ $order['buyer'] }}</span>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+                <span class="text-muted">Target tiba</span>
+                <span class="font-semibold text-ink">{{ $order['jam'] }} WIB</span>
             </div>
         </section>
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <p class="text-[12px] font-bold text-forest-deep">Informasi pemesan</p>
-            <div class="mt-3 flex items-center gap-3">
-                <span class="grid size-10 place-items-center rounded-full bg-mint text-[12px] font-extrabold text-forest">
-                    {{ strtoupper(substr($order['customer'], 0, 2)) }}
-                </span>
-                <div class="min-w-0 flex-1">
-                    <p class="text-[12px] font-bold text-ink">{{ $order['customer'] }}</p>
-                    <p class="text-[10px] text-muted">0812 3456 7890 · Bu Diana</p>
+        <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <p class="text-body font-bold text-ink">Item pesanan</p>
+            @foreach ($order['items'] as $item)
+                <div class="flex items-center justify-between gap-3 text-[13px]">
+                    <span class="text-muted">{{ $item['name'] }} x{{ $item['qty'] }}{{ count($item['opsi']) > 0 ? ' · '.implode(', ', $item['opsi']) : '' }}</span>
+                    <span class="shrink-0 font-semibold text-ink">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
                 </div>
-                <a href="#" class="grid size-9 place-items-center rounded-full bg-mint-soft text-forest"><x-icon name="phone" class="size-4" /></a>
+            @endforeach
+            <div class="h-px bg-line"></div>
+            <div class="flex items-center justify-between text-[13px]">
+                <span class="text-muted">Total</span>
+                <span class="font-bold text-forest">Rp {{ number_format($order['total'], 0, ',', '.') }}</span>
             </div>
-            <div class="mt-3 space-y-2 border-t border-line pt-3 text-[11px]">
-                <div class="flex gap-2 text-muted"><x-icon name="location" class="mt-0.5 size-3.5 shrink-0" /><span>Graha ITS, Kampus ITS Sukolilo, Surabaya</span></div>
-                <div class="flex gap-2 text-muted"><x-icon name="clock" class="mt-0.5 size-3.5 shrink-0" /><span>Antar 12 Okt 2026, 11.00 WIB</span></div>
-                <div class="flex gap-2 text-muted"><x-icon name="edit" class="mt-0.5 size-3.5 shrink-0" /><span>Sambal dipisah, 20 box tanpa kerupuk</span></div>
+            <div class="flex items-center justify-between text-[13px]">
+                <span class="text-muted">Pembayaran</span>
+                <span class="font-semibold text-ink">{{ $pembayaran?->metodeLabel() ?? 'Belum dibayar' }}</span>
+            </div>
+            <div class="flex items-center justify-between text-[13px]">
+                <span class="text-muted">Status bayar</span>
+                <span @class(['font-semibold', 'text-leaf' => $pembayaran?->status?->value === 'berhasil', 'text-amber' => $pembayaran?->status?->value !== 'berhasil'])>{{ $pembayaran?->status?->label() ?? 'Menunggu' }}</span>
             </div>
         </section>
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <div class="flex items-center justify-between">
-                <p class="text-[12px] font-bold text-forest-deep">Rincian menu</p>
-                <a href="{{ route('seller.katalog') }}" class="text-[10px] font-bold text-leaf">Ubah</a>
-            </div>
-            <div class="mt-3 space-y-3">
-                <div class="flex gap-3">
-                    <x-photo label="Foto" class="size-14 shrink-0" />
-                    <div class="min-w-0 flex-1">
-                        <p class="text-[12px] font-bold text-ink">Nasi Box Ayam Geprek</p>
-                        <p class="text-[10px] text-muted">150 porsi · Paket + Es Teh</p>
-                    </div>
-                    <span class="text-[12px] font-extrabold text-forest">Rp 5.700.000</span>
-                </div>
-                <div class="flex gap-3">
-                    <x-photo label="Foto" class="size-14 shrink-0" />
-                    <div class="min-w-0 flex-1">
-                        <p class="text-[12px] font-bold text-ink">Es teh manis</p>
-                        <p class="text-[10px] text-muted">150 gelas</p>
-                    </div>
-                    <span class="text-[12px] font-extrabold text-forest">Rp 600.000</span>
-                </div>
-            </div>
-            <div class="mt-3 space-y-1.5 border-t border-line pt-3 text-[11px]">
-                <div class="flex justify-between text-muted"><span>Subtotal</span><span class="font-semibold text-ink">Rp 6.300.000</span></div>
-                <div class="flex justify-between text-muted"><span>Ongkir</span><span class="font-semibold text-ink">Rp 85.000</span></div>
-                <div class="flex justify-between text-muted"><span>Diskon platform</span><span class="font-semibold text-leaf">- Rp 500.000</span></div>
-                <div class="flex justify-between border-t border-line pt-2 text-[12px] font-extrabold text-forest-deep"><span>Pendapatan bersih</span><span class="text-forest">Rp 5.337.500</span></div>
-            </div>
-        </section>
+        <p class="text-[15px] font-bold text-ink">Update Progres</p>
+        <div>
+            @foreach ($order['steps'] as [$title, $desc, $done])
+                <x-timeline-item :title="$title" :note="$desc" :done="$done" :last="$loop->last" />
+            @endforeach
+        </div>
 
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <p class="text-[12px] font-bold text-forest-deep">Timeline pesanan</p>
-            <div class="mt-3 space-y-3">
-                @foreach ($steps as [$title, $time, $done])
-                    <div class="flex gap-3">
-                        <span @class(['mt-0.5 grid size-5 shrink-0 place-items-center rounded-full text-white', 'bg-leaf' => $done, 'bg-line text-muted' => ! $done])>
-                            @if ($done)<x-icon name="check" class="size-3" />@else<span class="size-1.5 rounded-full bg-muted"></span>@endif
-                        </span>
-                        <div class="min-w-0 flex-1">
-                            <p class="text-[11px] font-bold {{ $done ? 'text-forest-deep' : 'text-muted' }}">{{ $title }}</p>
-                            <p class="text-[9px] text-muted">{{ $time }}</p>
-                        </div>
+        @if (count($order['milestones']) > 0)
+            <section class="space-y-1.5 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                @foreach ($order['milestones'] as $milestone)
+                    <div class="flex items-center justify-between text-caption">
+                        <span class="text-muted">{{ $milestone['label'] }}</span>
+                        <span class="font-semibold text-ink">{{ $milestone['waktu'] }}</span>
                     </div>
                 @endforeach
-            </div>
-        </section>
+            </section>
+        @endif
 
-        <section class="rounded-2xl bg-amber-soft p-3 text-[10px] leading-relaxed text-amber">
-            <span class="font-bold">Perhatian:</span> konfirmasi pesanan maksimal 1x24 jam. Setelah dikonfirmasi, jadwal produksi otomatis masuk kalender dapur.
-        </section>
+        @if ($pengiriman)
+            <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                <p class="text-body font-bold text-ink">Pengiriman</p>
+                <div class="flex items-center justify-between text-[13px]">
+                    <span class="text-muted">Kurir</span>
+                    <span class="font-semibold text-ink">{{ $order['courier'] }}</span>
+                </div>
+                <div class="flex items-center justify-between text-[13px]">
+                    <span class="text-muted">Status</span>
+                    <x-badge :color="$pengiriman->status->tone()">{{ $pengiriman->status->label() }}</x-badge>
+                </div>
+            </section>
+        @endif
 
-        <div class="grid grid-cols-2 gap-2">
-            <a href="#" class="flex items-center justify-center rounded-2xl border border-line bg-white px-4 py-3.5 text-[13px] font-bold text-muted">Tolak</a>
-            <a href="{{ route('seller.milestone') }}" class="flex items-center justify-center gap-2 rounded-2xl bg-forest px-4 py-3.5 text-[13px] font-bold text-white">
-                Terima &amp; proses
-                <x-icon name="arrow-right" class="size-4" />
+        @if ($order['packaging'])
+            <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                <div class="flex items-center justify-between text-[13px]">
+                    <span class="text-muted">Progress packaging</span>
+                    <span class="font-semibold text-ink">{{ $order['packaging']->jumlah_box }} / {{ $order['porsi'] }} box</span>
+                </div>
+                <x-progress-bar :value="$order['packaging']->persen()" />
+            </section>
+        @endif
+
+        @if ($statusValue === 'siap_kirim')
+            <a href="{{ route('seller.kurir', $order['id']) }}" class="flex items-center gap-3 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-mint-soft text-caption font-bold text-forest">&gt;</span>
+                <span class="min-w-0 flex-1 space-y-0.5">
+                    <span class="block text-body font-semibold text-ink">Tugaskan kurir</span>
+                    <span class="block text-caption text-muted">Kurir belum boleh berangkat sebelum ditugaskan</span>
+                </span>
+                <span class="text-caption font-semibold text-leaf-dark">Buka</span>
             </a>
-        </div>
+        @endif
     </main>
+
+    @if ($statusValue === 'dibayar')
+        <div class="sticky bottom-0 z-20 mt-auto flex items-center gap-2.5 border-t border-line bg-white px-4 py-3">
+            <form action="{{ route('seller.pesanan.tolak', $order['id']) }}" method="post" class="flex-1">
+                @csrf
+                <x-button type="submit" variant="outline">Tolak</x-button>
+            </form>
+            <form action="{{ route('seller.pesanan.konfirmasi', $order['id']) }}" method="post" class="flex-1">
+                @csrf
+                <x-button type="submit">Terima &amp; Proses</x-button>
+            </form>
+        </div>
+    @elseif (in_array($statusValue, ['dikonfirmasi', 'diproses'], true))
+        <div class="sticky bottom-0 z-20 mt-auto flex items-center gap-2.5 border-t border-line bg-white px-4 py-3">
+            <x-button variant="outline" :href="route('seller.packaging', $order['id'])" class="flex-1">Packaging</x-button>
+            <x-button :href="route('seller.milestone', $order['id'])" class="flex-1">Update Progres</x-button>
+        </div>
+    @elseif ($statusValue === 'siap_kirim')
+        <div class="sticky bottom-0 z-20 mt-auto border-t border-line bg-white px-4 py-3">
+            <x-button :href="route('seller.kurir', $order['id'])">Tugaskan Kurir</x-button>
+        </div>
+    @endif
 @endsection

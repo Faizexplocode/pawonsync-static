@@ -2,64 +2,73 @@
 
 @section('title', 'Keranjang')
 
-@php
-    $menu = config('demo.menus')[0];
-    $subtotal = $menu['price'] * 150 + 4000 * 150;
-    $ongkir = 85000;
-    $diskon = 500000;
-    $total = $subtotal + $ongkir - $diskon;
-@endphp
-
 @section('content')
-    <x-app-bar title="Keranjang" subtitle="2 item · 150 porsi" :back="route('buyer.menu', $menu['slug'])" />
+    <x-app-bar title="Keranjang" :subtitle="$kosong ? 'Belum ada item' : count($items).' item dari 1 dapur'" :back="route('buyer.katalog')" />
 
-    <main class="flex-1 space-y-4 px-4 py-4">
-        <section class="rounded-2xl border border-line bg-white p-3">
-            <div class="flex gap-3">
-                <x-photo label="Foto" class="size-20 shrink-0" />
-                <div class="min-w-0 flex-1">
-                    <div class="flex items-start justify-between gap-2">
-                        <p class="text-[13px] font-extrabold text-ink">{{ $menu['name'] }}</p>
-                        <button class="text-muted"><x-icon name="trash" class="size-4" /></button>
-                    </div>
-                    <p class="mt-0.5 text-[10px] text-muted">{{ $menu['seller'] }} · Paket + Es Teh</p>
-                    <div class="mt-2 flex items-center justify-between">
-                        <span class="text-[13px] font-extrabold text-forest">Rp {{ number_format($menu['price'], 0, ',', '.') }}</span>
-                        <x-qty :value="150" />
-                    </div>
+    <main class="flex-1 space-y-3.5 p-4">
+        @if ($kosong)
+            <x-empty-state title="Keranjang masih kosong">Pilih menu katering favoritmu terlebih dahulu.</x-empty-state>
+            <x-button :href="route('buyer.katalog')">Lihat katalog</x-button>
+        @else
+            <section class="space-y-3 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                <div class="flex items-center gap-2.5">
+                    <span class="grid size-8 shrink-0 place-items-center rounded-full bg-forest text-[11.5px] font-bold text-white">{{ strtoupper(substr($items[0]['seller'], 0, 2)) }}</span>
+                    <p class="min-w-0 flex-1 truncate text-body font-bold text-ink">{{ $items[0]['seller'] }}</p>
+                    <x-badge color="green">Verified</x-badge>
                 </div>
-            </div>
-        </section>
 
-        <section class="rounded-2xl border border-line bg-white p-3">
-            <div class="flex gap-3">
-                <x-photo label="Foto" class="size-20 shrink-0" />
-                <div class="min-w-0 flex-1">
-                    <p class="text-[13px] font-extrabold text-ink">Es teh manis</p>
-                    <p class="mt-0.5 text-[10px] text-muted">Tambahan · Per gelas</p>
-                    <div class="mt-2 flex items-center justify-between">
-                        <span class="text-[13px] font-extrabold text-forest">Rp 4.000</span>
-                        <x-qty :value="150" />
+                @foreach ($items as $item)
+                    <div class="h-px bg-line"></div>
+                    <div class="flex items-start gap-3">
+                        <x-photo :src="$item['photo']" label="Foto" class="size-[76px] shrink-0 rounded-[14px]" />
+                        <div class="min-w-0 flex-1 space-y-1">
+                            <div class="flex items-start justify-between gap-2">
+                                <p class="text-body font-semibold text-ink">{{ $item['menu_nama'] }}</p>
+                                <form action="{{ route('buyer.keranjang.hapus') }}" method="post" class="shrink-0">
+                                    @csrf
+                                    @method('DELETE')
+                                    <input type="hidden" name="key" value="{{ $item['key'] }}" />
+                                    <button type="submit" class="text-caption font-semibold text-danger">Hapus</button>
+                                </form>
+                            </div>
+                            @if ($item['paket_nama'] || count($item['opsi_nama']) > 0)
+                                <p class="text-[11px] text-muted">{{ collect([$item['paket_nama'], ...$item['opsi_nama']])->filter()->implode(' · ') }}</p>
+                            @endif
+                            <p class="text-caption font-medium text-muted">Rp {{ number_format($item['price'], 0, ',', '.') }} / porsi</p>
+                            <form action="{{ route('buyer.keranjang.update') }}" method="post" class="flex items-center justify-between">
+                                @csrf
+                                @method('PATCH')
+                                <input type="hidden" name="key" value="{{ $item['key'] }}" />
+                                <x-qty-stepper :value="$item['qty']" :submit-on-change="true" />
+                                <span class="text-[13px] font-bold text-forest">Rp {{ number_format($item['subtotal'], 0, ',', '.') }}</span>
+                            </form>
+                        </div>
                     </div>
+                @endforeach
+            </section>
+
+            <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                <p class="text-body font-bold text-ink">Ringkasan belanja</p>
+                <div class="flex items-center justify-between text-[13px]">
+                    <span class="text-muted">Subtotal ({{ $porsi }} porsi)</span>
+                    <span class="font-semibold text-ink">Rp {{ number_format($total, 0, ',', '.') }}</span>
                 </div>
-            </div>
-        </section>
-
-        <x-field label="Catatan untuk dapur" placeholder="Contoh: sambal dipisah, tanpa kerupuk..." icon="edit" />
-
-        <section class="rounded-2xl border border-line bg-white p-4">
-            <p class="text-[13px] font-bold text-forest-deep">Ringkasan pembayaran</p>
-            <div class="mt-3 space-y-2 text-[11px]">
-                <div class="flex justify-between text-muted"><span>Subtotal (150 porsi)</span><span class="font-semibold text-ink">Rp {{ number_format($subtotal, 0, ',', '.') }}</span></div>
-                <div class="flex justify-between text-muted"><span>Ongkir</span><span class="font-semibold text-ink">Rp {{ number_format($ongkir, 0, ',', '.') }}</span></div>
-                <div class="flex justify-between text-muted"><span>Diskon WISUDA20</span><span class="font-semibold text-leaf">- Rp {{ number_format($diskon, 0, ',', '.') }}</span></div>
-                <div class="mt-2 flex justify-between border-t border-line pt-2 text-[13px] font-extrabold text-forest-deep"><span>Total</span><span class="text-forest">Rp {{ number_format($total, 0, ',', '.') }}</span></div>
-            </div>
-        </section>
-
-        <a href="{{ route('buyer.checkout') }}" class="flex items-center justify-center gap-2 rounded-2xl bg-forest px-4 py-3.5 text-[14px] font-bold text-white shadow-lg shadow-forest/20">
-            Lanjut ke checkout
-            <x-icon name="arrow-right" class="size-4" />
-        </a>
+                <div class="flex items-center justify-between text-[13px]">
+                    <span class="text-muted">Estimasi ongkir &amp; layanan</span>
+                    <span class="font-semibold text-ink">Dihitung di checkout</span>
+                </div>
+                <div class="h-px bg-line"></div>
+                <div class="flex items-center justify-between text-[13px]">
+                    <span class="text-muted">Total sementara</span>
+                    <span class="font-bold text-forest">Rp {{ number_format($total, 0, ',', '.') }}</span>
+                </div>
+            </section>
+        @endif
     </main>
+
+    @unless ($kosong)
+        <div class="sticky bottom-0 z-20 mt-auto border-t border-line bg-white px-4 py-3">
+            <x-button :href="route('buyer.checkout')">Checkout ({{ count($items) }})</x-button>
+        </div>
+    @endunless
 @endsection

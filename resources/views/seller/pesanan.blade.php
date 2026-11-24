@@ -2,43 +2,56 @@
 
 @section('title', 'Pesanan Masuk')
 
-@php
-    $orders = config('demo.seller_orders');
-@endphp
-
 @section('content')
-    <x-app-bar title="Pesanan Masuk" subtitle="5 pesanan baru hari ini" :back="route('seller.dashboard')" />
+    <x-app-bar title="Pesanan Masuk" :subtitle="$jumlahBaru.' pesanan perlu dikonfirmasi'" :back="route('seller.dashboard')" />
 
-    <main class="flex-1 px-4 py-4">
-        <div class="flex gap-1 overflow-x-auto rounded-2xl bg-white p-1 ring-1 ring-line no-scrollbar">
-            <span class="shrink-0 rounded-xl bg-forest px-4 py-2 text-[11px] font-bold text-white">Baru</span>
-            <a href="#" class="shrink-0 rounded-xl px-4 py-2 text-[11px] font-bold text-muted">Diproses</a>
-            <a href="#" class="shrink-0 rounded-xl px-4 py-2 text-[11px] font-bold text-muted">Siap Kirim</a>
-            <a href="#" class="shrink-0 rounded-xl px-4 py-2 text-[11px] font-bold text-muted">Selesai</a>
-        </div>
-
-        <div class="mt-4 space-y-3">
-            @foreach ($orders as $order)
-                <div class="rounded-2xl border border-line bg-white p-4">
-                    <a href="{{ route('seller.pesanan.detail', $order['id']) }}" class="flex items-start justify-between gap-2">
-                        <div>
-                            <p class="text-[13px] font-extrabold text-forest-deep">{{ $order['title'] }}</p>
-                            <p class="mt-0.5 text-[10px] text-muted">{{ $order['customer'] }} · {{ $order['detail'] }}</p>
-                        </div>
-                        <x-badge :color="$order['tone']">{{ $order['status'] }}</x-badge>
-                    </a>
-                    <div class="mt-3 grid grid-cols-3 gap-2 rounded-xl bg-mist p-2 text-center">
-                        <div><p class="text-[9px] text-muted">Porsi</p><p class="text-[11px] font-bold text-forest-deep">150</p></div>
-                        <div><p class="text-[9px] text-muted">Antar</p><p class="text-[11px] font-bold text-forest-deep">11.00</p></div>
-                        <div><p class="text-[9px] text-muted">Total</p><p class="text-[11px] font-bold text-forest">Rp 5,3 jt</p></div>
-                    </div>
-                    <div class="mt-3 flex gap-2">
-                        <a href="{{ route('seller.pesanan.detail', $order['id']) }}" class="flex-1 rounded-xl border border-line py-2.5 text-center text-[11px] font-bold text-muted">Lihat detail</a>
-                        <a href="{{ route('seller.milestone') }}" class="flex-1 rounded-xl bg-forest py-2.5 text-center text-[11px] font-bold text-white">Proses</a>
-                    </div>
-                </div>
+    <main class="flex-1 space-y-3.5 p-4">
+        <div class="flex">
+            @foreach (['baru' => 'Baru', 'diproses' => 'Diproses', 'siap' => 'Siap', 'selesai' => 'Selesai', 'batal' => 'Batal'] as $key => $label)
+                <a href="{{ route('seller.pesanan', ['tab' => $key]) }}" class="flex flex-1 flex-col items-center gap-2 py-0.5">
+                    <span @class(['text-[13px]', 'font-bold text-forest' => $tab === $key, 'font-medium text-muted' => $tab !== $key])>{{ $label }}</span>
+                    <span @class(['h-[3px] w-full rounded-sm', 'bg-leaf-dark' => $tab === $key, 'bg-line' => $tab !== $key])></span>
+                </a>
             @endforeach
         </div>
+
+        @forelse ($orders as $order)
+            <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+                <a href="{{ route('seller.pesanan.detail', $order['id']) }}" class="flex items-center justify-between gap-2">
+                    <div class="min-w-0 flex-1 space-y-px">
+                        <p class="truncate text-[15px] font-bold text-ink">{{ $order['title'] }}</p>
+                        <p class="text-[11px] font-medium text-muted">{{ $order['kode'] }}</p>
+                    </div>
+                    <x-badge :color="$order['tone']" class="shrink-0">{{ $order['status'] }}</x-badge>
+                </a>
+                <p class="text-caption text-ink">{{ $order['customer'] }}</p>
+                <p class="text-caption text-muted">{{ $order['porsi'] }} porsi · antar {{ $order['jam'] }}</p>
+                <div class="h-px bg-line"></div>
+                <div class="flex items-center justify-between gap-2">
+                    <p class="text-body font-bold text-forest">Rp {{ number_format($order['total'], 0, ',', '.') }}</p>
+                    <div class="flex items-center gap-1.5">
+                        @if ($order['status_value'] === 'dibayar')
+                            <form action="{{ route('seller.pesanan.tolak', $order['id']) }}" method="post">
+                                @csrf
+                                <button type="submit" class="rounded-full border border-line bg-white px-3.5 py-2.5 text-caption font-medium text-ink">Tolak</button>
+                            </form>
+                            <form action="{{ route('seller.pesanan.konfirmasi', $order['id']) }}" method="post">
+                                @csrf
+                                <button type="submit" class="rounded-full bg-forest px-3.5 py-2.5 text-caption font-semibold text-white">Terima &amp; Proses</button>
+                            </form>
+                        @elseif (in_array($order['status_value'], ['dikonfirmasi', 'diproses'], true))
+                            <a href="{{ route('seller.milestone', $order['id']) }}" class="rounded-full bg-forest px-3.5 py-2.5 text-caption font-semibold text-white">Proses</a>
+                        @elseif ($order['status_value'] === 'siap_kirim')
+                            <a href="{{ route('seller.kurir', $order['id']) }}" class="rounded-full bg-forest px-3.5 py-2.5 text-caption font-semibold text-white">Tugaskan Kurir</a>
+                        @else
+                            <a href="{{ route('seller.pesanan.detail', $order['id']) }}" class="rounded-full bg-forest px-3.5 py-2.5 text-caption font-semibold text-white">Kelola</a>
+                        @endif
+                    </div>
+                </div>
+            </section>
+        @empty
+            <x-empty-state title="Belum ada pesanan">Tidak ada pesanan pada tab ini.</x-empty-state>
+        @endforelse
     </main>
 
     <x-bottom-nav role="seller" active="seller.pesanan" />

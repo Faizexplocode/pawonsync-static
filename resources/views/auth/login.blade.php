@@ -4,58 +4,49 @@
 
 @php
     $roles = ['buyer' => 'Buyer', 'seller' => 'Seller', 'kurir' => 'Kurir'];
-    $labels = [
-        'buyer' => ['field' => 'Alamat kirim', 'hint' => 'Contoh: Graha ITS, Surabaya', 'home' => 'buyer.beranda'],
-        'seller' => ['field' => 'Nama dapur', 'hint' => 'Contoh: Pawon Lestari', 'home' => 'seller.dashboard'],
-        'kurir' => ['field' => 'Nomor kendaraan', 'hint' => 'Contoh: L 1234 AB', 'home' => 'kurir.beranda'],
+    $demo = [
+        'buyer' => ['email' => 'buyer@pawonsync.test', 'name' => 'Bu Diana'],
+        'seller' => ['email' => 'seller@pawonsync.test', 'name' => 'Pawon Lestari'],
+        'kurir' => ['email' => 'kurir@pawonsync.test', 'name' => 'Budi Santoso'],
     ];
-    $current = $labels[$role];
+    $akun = $demo[$role];
 @endphp
 
 @section('content')
     <x-app-bar title="Masuk" subtitle="Pilih peran lalu masuk" :back="route('splash')" />
 
-    <main class="flex-1 px-4 py-5">
-        <h2 class="text-[22px] font-extrabold tracking-tight text-forest-deep">Selamat datang kembali</h2>
-        <p class="mt-1 text-[13px] leading-relaxed text-muted">Kelola katering dari dapur sampai venue dengan satu aplikasi.</p>
+    <main class="flex-1 space-y-3.5 p-4">
+        <h2 class="text-[22px] font-bold text-ink">Selamat datang kembali</h2>
+        <p class="text-[13px] text-muted">Kelola katering dari dapur sampai venue dengan satu aplikasi.</p>
 
-        <div class="mt-5 grid grid-cols-3 gap-1 rounded-2xl bg-white p-1 ring-1 ring-line">
+        <div class="flex rounded-full bg-mint-soft p-1">
             @foreach ($roles as $key => $label)
                 <a href="{{ route('login', $key) }}" @class([
-                    'rounded-xl py-2 text-center text-[12px] font-bold transition',
-                    'bg-forest text-white shadow-sm' => $role === $key,
-                    'text-muted hover:text-forest' => $role !== $key,
+                    'flex-1 rounded-full py-2 text-center text-caption',
+                    'bg-white font-bold text-forest shadow-[0_3px_10px_rgba(5,51,26,0.08)]' => $role === $key,
+                    'font-medium text-muted' => $role !== $key,
                 ])>{{ $label }}</a>
             @endforeach
         </div>
 
-        <form class="mt-6 space-y-4" action="{{ route($current['home']) }}" method="get">
-            <x-field label="Email" type="email" placeholder="nama@email.com" icon="mail" />
-            <x-field label="Password" type="password" placeholder="••••••••" icon="lock" />
-            <x-field :label="$current['field']" :placeholder="$current['hint']" :hint="$current['hint']" icon="location" />
+        <form class="space-y-3.5" action="{{ route('login.store', $role) }}" method="post">
+            @csrf
 
-            <div class="flex items-center justify-between pt-1 text-[11px] font-semibold">
-                <label class="inline-flex items-center gap-2 text-muted">
-                    <input type="checkbox" checked class="size-4 rounded border-line text-leaf focus:ring-mint" />
-                    Ingat saya
-                </label>
-                <a href="#" class="text-leaf">Lupa password?</a>
+            <x-field label="Email" name="email" type="email" :value="old('email')" placeholder="nama@email.com" autocomplete="email" required />
+            <x-field label="Password" name="password" type="password" placeholder="••••••••" autocomplete="current-password" required />
+
+            <div class="flex items-center justify-between text-caption">
+                <span class="font-medium text-muted">Ingat saya</span>
+                <span class="font-semibold text-leaf-dark">Lupa password?</span>
             </div>
 
-            <button type="submit" class="flex w-full items-center justify-center gap-2 rounded-2xl bg-forest px-4 py-3.5 text-[15px] font-semibold text-white shadow-lg shadow-forest/20 transition hover:bg-forest-deep">
-                Masuk
-                <x-icon name="arrow-right" class="size-4" />
-            </button>
+            <x-button type="submit">Masuk</x-button>
         </form>
 
-        <p class="mt-4 text-center text-[11px] leading-relaxed text-muted">
-            Dengan masuk, kamu menyetujui
-            <a href="#" class="font-semibold text-forest">Syarat &amp; Kebijakan Privasi</a> PawonSync.
-        </p>
+        <p class="text-center text-[11px] text-muted">Dengan masuk, kamu menyetujui Syarat &amp; Kebijakan Privasi PawonSync.</p>
 
-        <div class="mt-6 rounded-2xl bg-mint-soft p-4 text-[11px] leading-relaxed text-forest">
-            <p class="font-bold">Mode statis</p>
-            <p class="mt-1 text-leaf-dark">Halaman ini belum terhubung database. Tombol Masuk langsung membuka beranda sesuai peran.</p>
-        </div>
+        <x-alert tone="info" :title="'Akun demo '.$roles[$role]">
+            {{ $akun['name'] }} · {{ $akun['email'] }} · Password: password
+        </x-alert>
     </main>
 @endsection

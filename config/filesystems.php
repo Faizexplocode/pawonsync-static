@@ -60,6 +60,18 @@ return [
             'report' => false,
         ],
 
+        /*
+        | Supabase Storage (bucket public). Uploads are sent through the
+        | Storage REST API in App\Support\SupabaseStorage, so this disk
+        | exists to keep the credentials and bucket name in one place.
+        */
+        'supabase' => [
+            'driver' => 'supabase',
+            'url' => env('SUPABASE_URL'),
+            'key' => env('SUPABASE_SERVICE_ROLE_KEY'),
+            'bucket' => env('SUPABASE_BUCKET', 'pawonsync'),
+        ],
+
     ],
 
     /*

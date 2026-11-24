@@ -1,15 +1,13 @@
 @props(['label', 'value', 'sub' => null, 'tone' => 'light'])
 
 @php
-    $toneClasses = $tone === 'dark'
-        ? 'bg-forest text-mint'
-        : 'bg-white text-forest-deep ring-1 ring-line';
+    $dark = $tone === 'dark';
 @endphp
 
-<div class="rounded-2xl p-3 {{ $toneClasses }}">
-    <p class="text-[9px] font-bold uppercase tracking-wide opacity-70">{{ $label }}</p>
-    <p class="mt-1 text-[19px] font-extrabold leading-none">{{ $value }}</p>
+<div {{ $attributes->merge(['class' => 'flex-1 space-y-0.5 rounded-2xl px-3.5 py-3 '.($dark ? 'bg-[linear-gradient(149deg,var(--color-forest-deep)_0%,var(--color-leaf-dark)_71.4%)]' : 'border border-line bg-white')]) }}>
+    <p @class(['text-[11px] font-medium', 'text-mint' => $dark, 'text-muted' => ! $dark])>{{ $label }}</p>
+    <p @class(['text-[18px] font-bold', 'text-white' => $dark, 'text-ink' => ! $dark])>{{ $value }}</p>
     @if ($sub)
-        <p class="mt-1 text-[10px] font-medium opacity-70">{{ $sub }}</p>
+        <p @class(['text-[11px] font-semibold', 'text-mint-mid' => $dark, 'text-leaf' => ! $dark])>{{ $sub }}</p>
     @endif
 </div>
