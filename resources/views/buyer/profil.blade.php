@@ -13,8 +13,7 @@
 
 @section('content')
     <header class="bg-[linear-gradient(147deg,var(--color-forest-deep)_0%,var(--color-leaf)_71.4%)]">
-        <x-status-bar tone="light" />
-        <div class="px-4 pb-5 pt-2.5">
+        <div class="px-4 pb-5 pt-4">
             <h1 class="text-[18px] font-bold text-white">Profil Saya</h1>
             <p class="mt-0.5 text-caption text-mint">Buyer PawonSync</p>
         </div>

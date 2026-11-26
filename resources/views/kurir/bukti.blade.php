@@ -10,10 +10,10 @@
     </x-app-bar>
 
     @if ($bukti)
-        <main class="flex-1 space-y-3.5 p-4">
+        <main class="stagger flex-1 space-y-4 bg-cream px-4 pb-6 pt-4">
             <x-badge color="green" class="whitespace-normal">Bukti sudah dikirim dan tidak dapat diubah</x-badge>
             <x-photo :src="$bukti->foto_url" :label="'Diunggah '.$bukti->waktu?->locale('id')->translatedFormat('j M Y, H.i')" class="h-60 w-full rounded-[20px]" />
-            <section class="space-y-1.5 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <section class="space-y-1.5 surface px-4 py-3.5">
                 <div class="flex items-center justify-between text-[13px]">
                     <span class="text-muted">Pesanan</span>
                     <span class="font-semibold text-ink">{{ $task['kode'] }}</span>
@@ -33,7 +33,7 @@
         <form action="{{ route('kurir.bukti.store', $task['id']) }}" method="post" enctype="multipart/form-data" class="flex flex-1 flex-col">
             @csrf
 
-            <main class="flex-1 space-y-3.5 p-4">
+            <main class="stagger flex-1 space-y-4 bg-cream px-4 pb-6 pt-4">
                 <x-badge color="green" class="whitespace-normal">Foto pesanan ditata di venue = bukti sah pengantaran selesai</x-badge>
 
                 <label class="grid h-60 w-full cursor-pointer place-items-center rounded-[20px] bg-linear-[138deg] from-mint-soft from-0% to-mint to-70% px-4 text-center text-[11px] font-medium text-leaf-dark">
@@ -45,11 +45,11 @@
                 <x-field label="Jumlah box diterima" name="jumlah_box" :value="old('jumlah_box', $task['load'])" type="number" required />
                 <label class="block">
                     <span class="mb-1.5 block text-caption font-medium text-muted">Keterangan</span>
-                    <textarea name="catatan" rows="2" placeholder="Contoh: box ditata di meja prasmanan lantai 1" class="w-full rounded-xl border border-line bg-white px-3.5 py-[13px] text-body text-ink outline-none placeholder:text-muted/70 focus:border-leaf">{{ old('catatan') }}</textarea>
+                    <textarea name="catatan" rows="2" placeholder="Contoh: box ditata di meja prasmanan lantai 1" class="w-full rounded-2xl border border-line/70 bg-white px-3.5 py-[13px] text-body text-ink outline-none placeholder:text-muted/70 focus:border-leaf">{{ old('catatan') }}</textarea>
                 </label>
 
-                <section class="space-y-1.5 rounded-[18px] border border-line bg-white px-4 py-3.5">
-                    <p class="text-body font-bold text-ink">Konfirmasi serah terima</p>
+                <section class="space-y-1.5 surface px-4 py-3.5">
+                    <p class="text-[15px] font-semibold text-ink">Konfirmasi serah terima</p>
                     @foreach (['Jumlah box diterima lengkap', 'Ditata sesuai permintaan buyer', 'Foto siap diunggah'] as $langkah)
                         <div class="flex items-center gap-3 py-1">
                             <span class="grid size-[22px] shrink-0 place-items-center rounded-[7px] border-2 border-leaf-dark bg-leaf-dark text-[12px] font-bold text-white">✓</span>

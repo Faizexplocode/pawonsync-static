@@ -8,8 +8,8 @@
     <form action="{{ route('seller.packaging.store', $order['id']) }}" method="post" class="flex flex-1 flex-col">
         @csrf
 
-        <main class="flex-1 space-y-3.5 p-4">
-            <section class="space-y-2 rounded-[22px] bg-[linear-gradient(135deg,var(--color-forest-deep)_0%,var(--color-leaf)_71.4%)] p-[18px] text-center">
+        <main class="stagger flex-1 space-y-4 bg-cream px-4 pb-6 pt-4">
+            <section class="space-y-2 rounded-[24px] bg-[linear-gradient(135deg,var(--color-forest-deep)_0%,var(--color-leaf)_71.4%)] p-[18px] text-center">
                 <p class="text-caption font-medium text-mint">Counter Kotak</p>
                 <p id="packaging-angka" class="text-[64px] font-bold leading-none text-white">{{ $packaging->jumlah_box }}</p>
                 <p class="text-caption text-mint">dari {{ $order['porsi'] }} kotak selesai dikemas</p>
@@ -18,15 +18,15 @@
                 </div>
                 <div class="flex items-center justify-center gap-3.5 pt-1">
                     <button type="button" id="packaging-kurang" class="grid size-[60px] place-items-center rounded-full border border-mint-mid text-[30px] font-bold text-white" aria-label="Kurangi">−</button>
-                    <button type="button" id="packaging-tambah" class="grid size-[60px] place-items-center rounded-full border border-mint-mid bg-mint text-[30px] font-bold text-forest-deep" aria-label="Tambah">+</button>
+                    <button type="button" id="packaging-tambah" class="grid size-[60px] place-items-center rounded-full border border-mint-mid bg-mint text-[30px] font-semibold text-forest-deep" aria-label="Tambah">+</button>
                 </div>
                 <p class="text-[11px] font-medium text-mint">Tekan + setiap 1 kotak selesai dikemas</p>
                 <input type="number" id="packaging-input" name="jumlah_box" min="0" max="{{ $order['porsi'] }}" value="{{ old('jumlah_box', $packaging->jumlah_box) }}" class="sr-only" required />
             </section>
 
-            <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <section class="space-y-2 surface px-4 py-3.5">
                 <div class="flex items-center justify-between">
-                    <p class="text-body font-bold text-ink">Progress Pengemasan</p>
+                    <p class="text-[15px] font-semibold text-ink">Progress Pengemasan</p>
                     <x-badge color="green">{{ round($persen) }}%</x-badge>
                 </div>
                 <x-progress-bar :value="$persen" />
@@ -40,7 +40,7 @@
                 </div>
             </section>
 
-            <label class="flex cursor-pointer items-center gap-3 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <label class="flex cursor-pointer items-center gap-3 surface px-4 py-3.5">
                 <input type="checkbox" name="selesai" value="1" @checked($packaging->selesai) class="peer sr-only" />
                 <span class="grid size-[22px] shrink-0 place-items-center rounded-[7px] border-2 border-line bg-white text-[12px] font-bold text-transparent peer-checked:border-leaf-dark peer-checked:bg-leaf-dark peer-checked:text-white">✓</span>
                 <span class="min-w-0 flex-1 space-y-0.5">
@@ -49,8 +49,8 @@
                 </span>
             </label>
 
-            <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
-                <p class="text-body font-bold text-ink">Tips packaging</p>
+            <section class="space-y-2 surface px-4 py-3.5">
+                <p class="text-[15px] font-semibold text-ink">Tips packaging</p>
                 <p class="text-caption font-medium text-leaf-dark">Susun box per 25 pcs agar mudah dihitung kurir. Tempel label jumlah porsi di box paling depan.</p>
             </section>
         </main>

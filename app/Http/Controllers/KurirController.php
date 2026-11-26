@@ -10,6 +10,7 @@ use App\Models\Notifikasi;
 use App\Models\Pengiriman;
 use App\Support\PawonSync;
 use App\Support\SupabaseStorage;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -136,7 +137,7 @@ class KurirController extends Controller
         ]);
     }
 
-    public function kirimLokasi(Request $request, Pengiriman $pengiriman): RedirectResponse
+    public function kirimLokasi(Request $request, Pengiriman $pengiriman): RedirectResponse|JsonResponse
     {
         $this->pastikanMilik($request, $pengiriman);
 
@@ -145,12 +146,20 @@ class KurirController extends Controller
             'longitude' => ['required', 'numeric', 'between:-180,180'],
         ]);
 
-        LokasiKurir::create([
+        $lokasi = LokasiKurir::create([
             'pengiriman_id' => $pengiriman->id,
             'latitude' => $data['latitude'],
             'longitude' => $data['longitude'],
             'waktu' => now(),
         ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'latitude' => (float) $lokasi->latitude,
+                'longitude' => (float) $lokasi->longitude,
+                'waktu' => $lokasi->waktu?->toIso8601String(),
+            ]);
+        }
 
         return back()->with('status', 'Lokasi terbaru tersimpan.');
     }

@@ -4,7 +4,7 @@
     $pengirimanAktif = $role === 'kurir'
         ? \App\Models\Pengiriman::query()
             ->where('kurir_id', auth()->id())
-            ->whereIn('status', ['ditugaskan', 'dalam_perjalanan', 'tiba'])
+            ->whereIn('status', ['ditugaskan', 'berangkat', 'tiba'])
             ->latest('id')
             ->value('id')
         : null;

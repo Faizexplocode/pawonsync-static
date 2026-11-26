@@ -20,6 +20,7 @@ class KatalogSeeder extends Seeder
             [
                 'seller' => 'Pawon Lestari',
                 'nama' => 'Nasi Box Ayam Geprek',
+                'foto' => '/images/menu/ayam-geprek.jpg',
                 'deskripsi' => 'Nasi putih pulen, ayam geprek sambal bawang, lalapan, dan kerupuk. Cocok untuk wisuda, seminar, dan arisan.',
                 'harga' => 38000,
                 'plate' => ['gramasi' => 450, 'deskripsi' => 'Nasi 150 g · Ayam geprek 180 g · Sayur/lalapan 80 g · Sambal 30 g'],
@@ -37,6 +38,7 @@ class KatalogSeeder extends Seeder
             [
                 'seller' => 'Dapur Bu Sari',
                 'nama' => 'Nasi Box Rendang Spesial',
+                'foto' => '/images/menu/rendang.jpg',
                 'deskripsi' => 'Rendang sapi empuk dimasak slow cook, nasi pandan, sambal ijo, dan kerupuk.',
                 'harga' => 52000,
                 'plate' => ['gramasi' => 480, 'deskripsi' => 'Nasi pandan 150 g · Rendang sapi 170 g · Sambal ijo 40 g · Kerupuk 20 g'],
@@ -52,6 +54,7 @@ class KatalogSeeder extends Seeder
             [
                 'seller' => 'Warung Nusa',
                 'nama' => 'Snack Box Rapat Lengkap',
+                'foto' => '/images/menu/snack-box.jpg',
                 'deskripsi' => 'Isi 4 macam kue basah, air mineral, dan tisu. Praktis untuk rapat dan seminar.',
                 'harga' => 24000,
                 'plate' => ['gramasi' => 260, 'deskripsi' => 'Kue basah 4 pcs · Air mineral 330 ml · Tisu'],
@@ -67,6 +70,7 @@ class KatalogSeeder extends Seeder
             [
                 'seller' => 'Pawon Lestari',
                 'nama' => 'Prasmanan Nusantara',
+                'foto' => '/images/menu/prasmanan.jpg',
                 'deskripsi' => 'Pilihan 6 lauk nusantara, nasi, sayur, dan dessert. Sudah termasuk peralatan saji.',
                 'harga' => 52000,
                 'plate' => ['gramasi' => 520, 'deskripsi' => 'Nasi 150 g · 6 lauk 300 g · Sayur 50 g · Dessert 20 g'],
@@ -82,6 +86,7 @@ class KatalogSeeder extends Seeder
             [
                 'seller' => 'Dapur Bu Sari',
                 'nama' => 'Tumpeng Mini Syukuran',
+                'foto' => '/images/menu/tumpeng.jpg',
                 'deskripsi' => 'Tumpeng mini lengkap 7 lauk, cocok untuk syukuran kantor dan keluarga.',
                 'harga' => 410000,
                 'plate' => ['gramasi' => 1800, 'deskripsi' => 'Nasi kuning 800 g · 7 lauk 900 g · Hiasan sayur 100 g'],
@@ -96,6 +101,7 @@ class KatalogSeeder extends Seeder
             [
                 'seller' => 'Pawon Lestari',
                 'nama' => 'Paket Arisan 50 Porsi',
+                'foto' => '/images/menu/arisan.jpg',
                 'deskripsi' => 'Paket hemat 50 porsi untuk arisan: nasi, 3 lauk, sayur, dan dessert.',
                 'harga' => 29000,
                 'plate' => ['gramasi' => 430, 'deskripsi' => 'Nasi 150 g · 3 lauk 220 g · Sayur 40 g · Dessert 20 g'],
@@ -115,12 +121,13 @@ class KatalogSeeder extends Seeder
                     'seller_id' => $sellers[$data['seller']],
                     'deskripsi' => $data['deskripsi'],
                     'harga' => $data['harga'],
+                    'foto' => $data['foto'],
                 ],
             );
 
             DummyPlate::updateOrCreate(
                 ['menu_id' => $menu->id],
-                $data['plate'],
+                [...$data['plate'], 'foto' => $data['foto']],
             );
 
             foreach ($data['paket'] as [$nama, $harga]) {

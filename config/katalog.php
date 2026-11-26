@@ -22,6 +22,7 @@ return [
         'harga' => 1450000,
         'harga_normal' => 1900000,
         'terjual' => 72,
+        'foto' => '/images/menu/arisan.jpg',
     ],
 
     'metode_pembayaran' => [

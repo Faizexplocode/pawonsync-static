@@ -16,11 +16,11 @@
         </x-slot:right>
     </x-app-bar>
 
-    <main class="flex-1 space-y-3.5 p-4">
-        <section class="space-y-2 rounded-[18px] border border-line bg-white px-3 py-3.5">
+    <main class="stagger flex-1 space-y-4 bg-cream px-4 pb-6 pt-4">
+        <section class="space-y-2 surface px-3 py-3.5">
             <div class="flex items-center justify-between">
                 <a href="{{ route('seller.kalender', ['bulan' => $awal->copy()->subMonth()->format('Y-m')]) }}" class="text-[20px] font-medium text-forest" aria-label="Bulan sebelumnya">‹</a>
-                <p class="text-[15px] font-bold text-ink">{{ $bulanLabel }}</p>
+                <p class="text-[15px] font-semibold text-ink">{{ $bulanLabel }}</p>
                 <a href="{{ route('seller.kalender', ['bulan' => $awal->copy()->addMonth()->format('Y-m')]) }}" class="text-[20px] font-medium text-forest" aria-label="Bulan berikutnya">›</a>
             </div>
             <div class="flex text-center text-[10px] font-medium text-muted">
@@ -66,7 +66,7 @@
             <x-stat-card tone="dark" label="Kapasitas terpakai" :value="$kapasitasPersen.'%'" :sub="$totalPorsi.' porsi'" />
         </div>
 
-        <p class="text-title font-bold text-ink">Jadwal pengiriman</p>
+        <p class="text-[15px] font-semibold text-ink">Jadwal pengiriman</p>
         <div>
             @forelse ($events as $event)
                 <a href="{{ route('seller.pesanan.detail', $event['id']) }}" class="block">
@@ -77,8 +77,8 @@
             @endforelse
         </div>
 
-        <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
-            <p class="text-body font-bold text-ink">Alokasi kapasitas</p>
+        <section class="space-y-2 surface px-4 py-3.5">
+            <p class="text-[15px] font-semibold text-ink">Alokasi kapasitas</p>
             @forelse ($kapasitas as $kapasitasItem)
                 <div class="space-y-1.5">
                     <div class="flex items-center justify-between text-[13px]">

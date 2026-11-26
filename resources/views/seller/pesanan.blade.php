@@ -5,21 +5,22 @@
 @section('content')
     <x-app-bar title="Pesanan Masuk" :subtitle="$jumlahBaru.' pesanan perlu dikonfirmasi'" :back="route('seller.dashboard')" />
 
-    <main class="flex-1 space-y-3.5 p-4">
-        <div class="flex">
+    <main class="stagger flex-1 space-y-4 bg-cream px-4 pb-6 pt-4">
+        <div class="no-scrollbar -mx-4 flex gap-2 overflow-x-auto px-4">
             @foreach (['baru' => 'Baru', 'diproses' => 'Diproses', 'siap' => 'Siap', 'selesai' => 'Selesai', 'batal' => 'Batal'] as $key => $label)
-                <a href="{{ route('seller.pesanan', ['tab' => $key]) }}" class="flex flex-1 flex-col items-center gap-2 py-0.5">
-                    <span @class(['text-[13px]', 'font-bold text-forest' => $tab === $key, 'font-medium text-muted' => $tab !== $key])>{{ $label }}</span>
-                    <span @class(['h-[3px] w-full rounded-sm', 'bg-leaf-dark' => $tab === $key, 'bg-line' => $tab !== $key])></span>
-                </a>
+                <a href="{{ route('seller.pesanan', ['tab' => $key]) }}" @class([
+                    'shrink-0 rounded-full px-4 py-2 text-[13px] transition',
+                    'bg-forest font-medium text-white' => $tab === $key,
+                    'bg-white text-muted shadow-soft' => ! ($tab === $key),
+                ])>{{ $label }}</a>
             @endforeach
         </div>
 
         @forelse ($orders as $order)
-            <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <section class="space-y-2 surface px-4 py-3.5">
                 <a href="{{ route('seller.pesanan.detail', $order['id']) }}" class="flex items-center justify-between gap-2">
                     <div class="min-w-0 flex-1 space-y-px">
-                        <p class="truncate text-[15px] font-bold text-ink">{{ $order['title'] }}</p>
+                        <p class="truncate text-[15px] font-semibold text-ink">{{ $order['title'] }}</p>
                         <p class="text-[11px] font-medium text-muted">{{ $order['kode'] }}</p>
                     </div>
                     <x-badge :color="$order['tone']" class="shrink-0">{{ $order['status'] }}</x-badge>
@@ -28,7 +29,7 @@
                 <p class="text-caption text-muted">{{ $order['porsi'] }} porsi · antar {{ $order['jam'] }}</p>
                 <div class="h-px bg-line"></div>
                 <div class="flex items-center justify-between gap-2">
-                    <p class="text-body font-bold text-forest">Rp {{ number_format($order['total'], 0, ',', '.') }}</p>
+                    <p class="text-body font-semibold text-forest">Rp {{ number_format($order['total'], 0, ',', '.') }}</p>
                     <div class="flex items-center gap-1.5">
                         @if ($order['status_value'] === 'dibayar')
                             <form action="{{ route('seller.pesanan.tolak', $order['id']) }}" method="post">

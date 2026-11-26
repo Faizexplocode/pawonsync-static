@@ -3,7 +3,7 @@
 @section('title', $menu ? 'Edit Menu' : 'Tambah Menu')
 
 @php
-    $input = 'w-full rounded-xl border border-line bg-white px-3.5 py-[13px] text-body text-ink outline-none placeholder:text-muted/70 focus:border-leaf';
+    $input = 'w-full rounded-2xl border border-line/70 bg-white px-3.5 py-[13px] text-body text-ink outline-none placeholder:text-muted/70 focus:border-leaf';
 @endphp
 
 @section('content')
@@ -12,8 +12,8 @@
     <form action="{{ $menu ? route('seller.menu.store', $menu->id) : route('seller.menu.store') }}" method="post" enctype="multipart/form-data" class="flex flex-1 flex-col">
         @csrf
 
-        <main class="flex-1 space-y-3.5 p-4">
-            <p class="text-body font-bold text-ink">Foto menu</p>
+        <main class="stagger flex-1 space-y-4 bg-cream px-4 pb-6 pt-4">
+            <p class="text-[15px] font-semibold text-ink">Foto menu</p>
             <div class="flex items-center gap-2.5">
                 <x-photo :src="$menu?->foto" :label="$menu?->foto ? 'Utama' : 'Belum ada foto'" class="h-[92px] flex-1 rounded-[14px]" />
                 <label class="grid h-[92px] flex-1 cursor-pointer place-items-center rounded-[14px] bg-linear-[132deg] from-mint-soft to-mint text-[11px] font-medium text-leaf-dark">
@@ -33,7 +33,7 @@
                 <textarea name="deskripsi" rows="3" class="{{ $input }}">{{ old('deskripsi', $menu?->deskripsi) }}</textarea>
             </label>
 
-            <p class="text-title font-bold text-ink">Variasi Paket</p>
+            <p class="text-[15px] font-semibold text-ink">Variasi Paket</p>
             <p class="-mt-2 text-[11px] text-muted">Kosongkan nama jika tidak dipakai.</p>
             @for ($i = 0; $i < 3; $i++)
                 <div class="flex gap-2">
@@ -42,7 +42,7 @@
                 </div>
             @endfor
 
-            <p class="text-title font-bold text-ink">Opsi Tambahan</p>
+            <p class="text-[15px] font-semibold text-ink">Opsi Tambahan</p>
             <p class="-mt-2 text-[11px] text-muted">Contoh: es teh, kemasan eco-friendly, sambal terpisah.</p>
             @for ($i = 0; $i < 3; $i++)
                 <div class="flex gap-2">
@@ -51,7 +51,7 @@
                 </div>
             @endfor
 
-            <p class="text-title font-bold text-ink">Dummy Plate (standar porsi)</p>
+            <p class="text-[15px] font-semibold text-ink">Dummy Plate (standar porsi)</p>
             <label class="block">
                 <span class="mb-1.5 block text-caption font-medium text-muted">Komposisi dummy plate</span>
                 <textarea name="plate_deskripsi" rows="2" placeholder="Contoh: Nasi 150 g, ayam 180 g, sayur 80 g, sambal 30 g" class="{{ $input }}">{{ old('plate_deskripsi', $plate?->deskripsi) }}</textarea>

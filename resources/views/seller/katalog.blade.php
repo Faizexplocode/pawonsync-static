@@ -5,7 +5,7 @@
 @section('content')
     <x-app-bar title="Kelola Katalog" :subtitle="$total.' menu tersedia'" :back="route('seller.dashboard')" />
 
-    <main class="flex-1 space-y-3.5 p-4">
+    <main class="stagger flex-1 space-y-4 bg-cream px-4 pb-6 pt-4">
         <div class="flex items-center gap-2.5">
             <div class="flex h-11 flex-1 items-center gap-2.5 rounded-[14px] border border-line bg-white px-3.5 text-[13px] text-muted">
                 <x-icon name="search" class="size-3.5 shrink-0" />
@@ -21,12 +21,12 @@
         </div>
 
         @forelse ($menus as $menu)
-            <section class="space-y-2.5 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <section class="space-y-2.5 surface px-4 py-3.5">
                 <div class="flex items-start gap-3">
                     <x-photo :src="$menu['photo']" label="Foto" class="size-[84px] shrink-0 rounded-[14px]" />
                     <div class="min-w-0 flex-1 space-y-1">
                         <p class="line-clamp-2 text-body font-semibold text-ink">{{ $menu['name'] }}</p>
-                        <p class="text-body font-bold text-forest">Rp {{ number_format($menu['price'], 0, ',', '.') }}</p>
+                        <p class="text-body font-semibold text-forest">Rp {{ number_format($menu['price'], 0, ',', '.') }}</p>
                         <p class="text-[11px] text-muted">min {{ config('katalog.min_porsi') }} porsi · {{ $menu['sold'] }} terjual · {{ $menu['reviews'] }} ulasan</p>
                     </div>
                 </div>

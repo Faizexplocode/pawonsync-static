@@ -11,17 +11,17 @@
 @section('content')
     <x-app-bar title="Detail Pesanan" :subtitle="$order['kode']" :back="route('seller.pesanan')" />
 
-    <main class="flex-1 space-y-3.5 p-4">
-        <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+    <main class="stagger flex-1 space-y-4 bg-cream px-4 pb-6 pt-4">
+        <section class="space-y-2 surface px-4 py-3.5">
             <div class="flex items-center justify-between gap-2">
-                <p class="truncate text-[15px] font-bold text-ink">{{ $order['title'] }} - {{ $order['buyer'] }}</p>
+                <p class="truncate text-[15px] font-semibold text-ink">{{ $order['title'] }} - {{ $order['buyer'] }}</p>
                 <x-badge :color="$order['tone']" class="shrink-0">{{ $order['status'] }}</x-badge>
             </div>
             <p class="text-caption text-muted">{{ $order['porsi'] }} porsi · {{ $order['tanggal'] }}, {{ $order['jam'] }}</p>
         </section>
 
-        <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
-            <p class="text-body font-bold text-ink">Alamat pengiriman</p>
+        <section class="space-y-2 surface px-4 py-3.5">
+            <p class="text-[15px] font-semibold text-ink">Alamat pengiriman</p>
             <p class="text-[13px] text-ink">{{ $order['alamat'] }}</p>
             <div class="flex items-center justify-between text-[13px]">
                 <span class="text-muted">Pemesan</span>
@@ -33,8 +33,8 @@
             </div>
         </section>
 
-        <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
-            <p class="text-body font-bold text-ink">Item pesanan</p>
+        <section class="space-y-2 surface px-4 py-3.5">
+            <p class="text-[15px] font-semibold text-ink">Item pesanan</p>
             @foreach ($order['items'] as $item)
                 <div class="flex items-center justify-between gap-3 text-[13px]">
                     <span class="text-muted">{{ $item['name'] }} x{{ $item['qty'] }}{{ count($item['opsi']) > 0 ? ' · '.implode(', ', $item['opsi']) : '' }}</span>
@@ -44,7 +44,7 @@
             <div class="h-px bg-line"></div>
             <div class="flex items-center justify-between text-[13px]">
                 <span class="text-muted">Total</span>
-                <span class="font-bold text-forest">Rp {{ number_format($order['total'], 0, ',', '.') }}</span>
+                <span class="font-semibold text-forest">Rp {{ number_format($order['total'], 0, ',', '.') }}</span>
             </div>
             <div class="flex items-center justify-between text-[13px]">
                 <span class="text-muted">Pembayaran</span>
@@ -56,7 +56,7 @@
             </div>
         </section>
 
-        <p class="text-[15px] font-bold text-ink">Update Progres</p>
+        <p class="text-[15px] font-semibold text-ink">Update Progres</p>
         <div>
             @foreach ($order['steps'] as [$title, $desc, $done])
                 <x-timeline-item :title="$title" :note="$desc" :done="$done" :last="$loop->last" />
@@ -64,7 +64,7 @@
         </div>
 
         @if (count($order['milestones']) > 0)
-            <section class="space-y-1.5 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <section class="space-y-1.5 surface px-4 py-3.5">
                 @foreach ($order['milestones'] as $milestone)
                     <div class="flex items-center justify-between text-caption">
                         <span class="text-muted">{{ $milestone['label'] }}</span>
@@ -75,8 +75,8 @@
         @endif
 
         @if ($pengiriman)
-            <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
-                <p class="text-body font-bold text-ink">Pengiriman</p>
+            <section class="space-y-2 surface px-4 py-3.5">
+                <p class="text-[15px] font-semibold text-ink">Pengiriman</p>
                 <div class="flex items-center justify-between text-[13px]">
                     <span class="text-muted">Kurir</span>
                     <span class="font-semibold text-ink">{{ $order['courier'] }}</span>
@@ -89,7 +89,7 @@
         @endif
 
         @if ($order['packaging'])
-            <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
+            <section class="space-y-2 surface px-4 py-3.5">
                 <div class="flex items-center justify-between text-[13px]">
                     <span class="text-muted">Progress packaging</span>
                     <span class="font-semibold text-ink">{{ $order['packaging']->jumlah_box }} / {{ $order['porsi'] }} box</span>
@@ -99,8 +99,8 @@
         @endif
 
         @if ($statusValue === 'siap_kirim')
-            <a href="{{ route('seller.kurir', $order['id']) }}" class="flex items-center gap-3 rounded-[18px] border border-line bg-white px-4 py-3.5">
-                <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-mint-soft text-caption font-bold text-forest">&gt;</span>
+            <a href="{{ route('seller.kurir', $order['id']) }}" class="flex items-center gap-3 surface px-4 py-3.5">
+                <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-mint-soft text-caption font-semibold text-forest">&gt;</span>
                 <span class="min-w-0 flex-1 space-y-0.5">
                     <span class="block text-body font-semibold text-ink">Tugaskan kurir</span>
                     <span class="block text-caption text-muted">Kurir belum boleh berangkat sebelum ditugaskan</span>

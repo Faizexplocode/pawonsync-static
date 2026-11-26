@@ -4,8 +4,7 @@
 
 @section('content')
     <header class="bg-[linear-gradient(150deg,var(--color-forest-deep)_0%,var(--color-leaf)_71.4%)]">
-        <x-status-bar tone="light" />
-        <div class="flex items-center gap-3 px-4 pb-4 pt-2.5">
+        <div class="flex items-center gap-3 px-4 pb-4 pt-4">
             <div class="min-w-0 flex-1">
                 <h1 class="truncate text-[18px] font-bold text-white">Halo, {{ $buyer->nama }}</h1>
                 <p class="mt-0.5 truncate text-caption text-mint">
@@ -81,7 +80,7 @@
                 <span class="text-caption font-semibold text-leaf-dark">Berakhir {{ $flashSaleBerakhir }}</span>
             </div>
             <a href="{{ route('buyer.katalog') }}" class="flex items-center gap-3 rounded-[18px] bg-[linear-gradient(161deg,var(--color-forest)_0%,var(--color-leaf)_71.4%)] p-3.5">
-                <x-photo label="Foto" class="size-16 shrink-0 rounded-[14px]" />
+                <x-photo :src="$flashSale['foto'] ?? null" label="Foto" class="size-16 shrink-0 rounded-[14px]" />
                 <div class="min-w-0 flex-1 space-y-[3px]">
                     <p class="truncate text-body font-bold text-white">{{ $flashSale['title'] }}</p>
                     <p class="text-caption font-medium text-mint">

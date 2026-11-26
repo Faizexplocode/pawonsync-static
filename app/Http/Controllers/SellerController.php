@@ -67,20 +67,20 @@ class SellerController extends Controller
             ])
             ->all();
 
-        $bars = [];
-        $days = ['Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab', 'Min'];
+        $omzetHarian = [];
+        $days = [];
 
         for ($i = 6; $i >= 0; $i--) {
             $tanggal = now()->subDays($i);
-            $total = (float) $seller->pesananSebagaiSeller()
+            $omzetHarian[] = (float) $seller->pesananSebagaiSeller()
                 ->whereDate('tanggal_acara', $tanggal->toDateString())
                 ->where('status', StatusPesanan::Selesai->value)
                 ->sum('total_harga');
-            $bars[] = $total;
+            $days[] = $i === 0 ? 'Hari ini' : $tanggal->locale('id')->translatedFormat('D');
         }
 
-        $maks = max(1, max($bars));
-        $bars = array_map(fn ($total) => max(6, (int) round($total / $maks * 100)), $bars);
+        $maks = max(1, max($omzetHarian));
+        $bars = array_map(fn ($total) => max(6, (int) round($total / $maks * 100)), $omzetHarian);
 
         $rating = PawonSync::ratingSeller($seller->id);
         $porsiBulanIni = (int) $seller->pesananSebagaiSeller()
@@ -104,6 +104,8 @@ class SellerController extends Controller
             'menus' => $menus,
             'bars' => $bars,
             'days' => $days,
+            'omzetMingguIni' => array_sum($omzetHarian),
+            'fotoUtama' => collect($menus)->pluck('photo')->filter()->first() ?? '/images/menu/tumpeng.jpg',
         ]);
     }
 
@@ -638,8 +640,21 @@ class SellerController extends Controller
             ];
         }
 
+        $bulanan = collect(range(5, 0))->map(function (int $mundur) use ($selesai) {
+            $bulan = now()->startOfMonth()->subMonths($mundur);
+
+            return [
+                'label' => $bulan->locale('id')->translatedFormat('M'),
+                'total' => (float) $selesai
+                    ->filter(fn (Pesanan $order) => $order->tanggal_acara?->isSameMonth($bulan))
+                    ->sum('total_harga'),
+            ];
+        })->all();
+
         return view('seller.keuangan', [
             'seller' => $seller,
+            'bulanan' => $bulanan,
+            'rataRata' => $selesai->count() > 0 ? $masuk / $selesai->count() : 0,
             'masuk' => $masuk,
             'komisi' => $komisi,
             'laba' => $laba,

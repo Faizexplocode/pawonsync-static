@@ -1,9 +1,9 @@
 @props(['menu'])
 
 <a href="{{ route('buyer.menu', $menu['id']) }}" class="group self-start overflow-hidden rounded-card border border-line bg-white">
-    <div class="grid h-[104px] place-items-center bg-linear-[141deg] from-mint-soft from-0% to-mint to-70% text-[11px] font-medium text-leaf-dark">
+    <div class="relative grid h-[104px] place-items-center overflow-hidden bg-linear-[141deg] from-mint-soft from-0% to-mint to-70% text-[11px] font-medium text-leaf-dark">
         @if (! empty($menu['photo']))
-            <img src="{{ $menu['photo'] }}" alt="{{ $menu['name'] }}" class="size-full object-cover" />
+            <img src="{{ $menu['photo'] }}" alt="{{ $menu['name'] }}" class="absolute inset-0 size-full object-cover" />
         @else
             Foto menu
         @endif

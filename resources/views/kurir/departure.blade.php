@@ -2,69 +2,87 @@
 
 @section('title', 'Departure Gate')
 
+@php
+    $belumBerangkat = $pengiriman->status->value === 'ditugaskan';
+    $siapBerangkat = collect($checklist)->every(fn (array $item) => $item[1] || str_starts_with($item[0], 'Jumlah box'));
+@endphp
+
 @section('content')
-    <x-app-bar title="Departure Gate" subtitle="Mulai pengiriman" :back="route('kurir.tugas.detail', $task['id'])" />
+    <div class="relative flex flex-1 flex-col bg-cream">
+        <x-peta-rute
+            :alamat="$task['address']"
+            :lokasi-url="$belumBerangkat ? null : route('kurir.live.lokasi', $task['id'])"
+            tinggi="h-[52vh] min-h-[340px]"
+        >
+            <a href="{{ route('kurir.tugas.detail', $task['id']) }}" class="absolute left-4 top-4 z-[500] grid size-11 place-items-center rounded-full bg-white text-ink shadow-float" aria-label="Kembali">
+                <x-icon name="chevron-left" class="size-5" />
+            </a>
+            <span class="absolute left-1/2 top-5 z-[500] -translate-x-1/2 rounded-full bg-white/95 px-4 py-2 text-[12px] font-medium text-ink shadow-float">Departure Gate</span>
+            <span class="absolute bottom-11 left-4 z-[500] inline-flex max-w-[70%] items-center gap-1.5 rounded-full bg-white/95 px-3 py-1.5 text-[11px] font-medium text-forest shadow-float">
+                <span class="size-1.5 shrink-0 rounded-full bg-leaf"></span>
+                <span class="truncate" data-peta="status">Menyiapkan peta…</span>
+            </span>
+        </x-peta-rute>
 
-    <main class="flex-1 space-y-3.5 p-4">
-        <section class="space-y-1 rounded-[20px] bg-[linear-gradient(159deg,var(--color-forest-deep)_0%,var(--color-leaf)_71.4%)] px-[18px] py-4">
-            <p class="text-caption font-medium text-mint">{{ $task['title'] }} · {{ $task['load'] }}</p>
-            <p class="text-heading-xl font-bold text-white">{{ $task['status'] }}</p>
-            <p class="text-caption text-mint">Tiba target {{ $task['eta'] }} · ETA otomatis dihitung dari lokasi</p>
-        </section>
+        <section class="relative z-[600] -mt-7 flex-1 space-y-5 rounded-t-[30px] bg-cream px-5 pb-6 pt-3 shadow-[0_-12px_30px_rgba(6,48,31,0.08)]">
+            <span class="mx-auto block h-1 w-10 rounded-full bg-line"></span>
 
-        <section class="space-y-1.5 rounded-[18px] border border-line bg-white px-4 py-3.5">
-            <p class="text-body font-bold text-ink">Cek sebelum berangkat</p>
-            @foreach ($checklist as [$label, $checked])
-                <div class="flex items-center gap-3 py-1">
-                    <span @class([
-                        'grid size-[22px] shrink-0 place-items-center rounded-[7px] border-2 text-[12px] font-bold',
-                        'border-leaf-dark bg-leaf-dark text-white' => $checked,
-                        'border-line bg-white text-transparent' => ! $checked,
-                    ])>✓</span>
-                    <span @class(['text-body', 'font-medium text-ink' => $checked, 'text-ink' => ! $checked])>{{ $label }}</span>
-                </div>
-            @endforeach
-        </section>
-
-        <section class="space-y-2 rounded-[18px] border border-line bg-white px-4 py-3.5">
-            <p class="text-body font-bold text-ink">Rute perjalanan</p>
-            <div class="flex items-start gap-3 text-caption">
-                <span class="mt-1 size-2 shrink-0 rounded-full bg-forest"></span>
-                <div><p class="font-semibold text-ink">{{ $task['seller'] }}</p><p class="text-muted">Titik ambil pesanan</p></div>
+            <div class="space-y-1">
+                <p class="text-[12px] text-muted">{{ $task['kode'] }} · {{ $task['status'] }}</p>
+                <h1 class="text-[19px] font-semibold leading-snug text-ink">{{ $task['title'] }}</h1>
+                <p class="text-[13px] text-muted">{{ $task['address'] }}</p>
             </div>
-            <div class="ml-[3px] h-5 border-l-2 border-dashed border-line"></div>
-            <div class="flex items-start gap-3 text-caption">
-                <span class="mt-1 size-2 shrink-0 rounded-full bg-amber"></span>
-                <div><p class="font-semibold text-ink">{{ $task['address'] }}</p><p class="text-muted">Target {{ $task['eta'] }}</p></div>
-            </div>
-        </section>
 
-        <p class="text-body font-bold text-ink">Yang terjadi saat berangkat</p>
-        <section class="space-y-1.5 rounded-[18px] border border-line bg-white px-4 py-3.5">
-            @foreach (['Status pesanan berubah menjadi dikirim', 'Buyer menerima notifikasi keberangkatan', 'Seller melihat posisi kurir di dashboard'] as $langkah)
-                <div class="flex items-center gap-3 py-1">
-                    <span class="grid size-[22px] shrink-0 place-items-center rounded-[7px] border-2 border-leaf-dark bg-leaf-dark text-[12px] font-bold text-white">✓</span>
-                    <span class="text-body font-medium text-ink">{{ $langkah }}</span>
+            <div class="surface grid grid-cols-3 divide-x divide-line py-3.5 text-center">
+                <div class="px-1">
+                    <p class="tabular text-[17px] font-semibold text-ink" data-peta="jarak">–</p>
+                    <p class="text-[11px] text-muted">Jarak</p>
                 </div>
-            @endforeach
+                <div class="px-1">
+                    <p class="tabular text-[17px] font-semibold text-forest" data-peta="eta">–</p>
+                    <p class="text-[11px] text-muted">Perkiraan</p>
+                </div>
+                <div class="px-1">
+                    <p class="tabular text-[17px] font-semibold text-ink">{{ $task['load'] }}</p>
+                    <p class="text-[11px] text-muted">Muatan</p>
+                </div>
+            </div>
+
+            <div class="space-y-3">
+                <h2 class="text-[15px] font-semibold text-ink">Cek sebelum berangkat</h2>
+                <ul class="space-y-2.5">
+                    @foreach ($checklist as [$label, $checked])
+                        <li class="flex items-center gap-3 text-[14px]">
+                            <span @class([
+                                'grid size-6 shrink-0 place-items-center rounded-full',
+                                'bg-leaf text-white' => $checked,
+                                'bg-white text-line ring-1 ring-line' => ! $checked,
+                            ])><x-icon name="check" class="size-3.5" /></span>
+                            <span @class(['text-ink' => $checked, 'text-muted' => ! $checked])>{{ $label }}</span>
+                        </li>
+                    @endforeach
+                </ul>
+            </div>
+
+            <p class="flex items-start gap-2 text-[12px] leading-relaxed text-muted">
+                <x-icon name="info" class="mt-0.5 size-4 shrink-0 text-leaf" />
+                Saat berangkat, buyer menerima notifikasi dan posisimu dibagikan otomatis selama perjalanan.
+            </p>
+
+            @if ($belumBerangkat)
+                <form action="{{ route('kurir.departure.mulai', $task['id']) }}" method="post">
+                    @csrf
+                    <button type="submit" class="flex w-full items-center rounded-full bg-[linear-gradient(140deg,var(--color-forest-night)_0%,var(--color-forest)_60%,var(--color-leaf)_100%)] p-1.5 text-white shadow-float transition active:scale-[0.98]">
+                        <span class="grid size-12 shrink-0 place-items-center rounded-full bg-mint text-forest"><x-icon name="arrow-right" class="size-5" /></span>
+                        <span class="flex-1 pr-12 text-center text-[15px] font-semibold">{{ $siapBerangkat ? 'Berangkat sekarang' : 'Coba berangkat' }}</span>
+                    </button>
+                </form>
+            @else
+                <a href="{{ route('kurir.live', $task['id']) }}" class="flex w-full items-center justify-center gap-2 rounded-full bg-forest py-4 text-[15px] font-semibold text-white">
+                    <x-icon name="navigation" class="size-4" />
+                    Buka navigasi perjalanan
+                </a>
+            @endif
         </section>
-
-        <x-alert tone="warning">Jangan berangkat sebelum seller menandai pesanan selesai di-packing.</x-alert>
-
-        @if ($pengiriman->status->value === 'ditugaskan')
-            <form action="{{ route('kurir.departure.mulai', $task['id']) }}" method="post">
-                @csrf
-                <button type="submit" class="flex w-full items-center rounded-[40px] bg-[linear-gradient(166deg,var(--color-forest)_0%,var(--color-leaf)_71.4%)] p-1.5">
-                    <span class="grid size-14 shrink-0 place-items-center rounded-full bg-white text-[16px] font-bold text-forest">›››</span>
-                    <span class="flex-1 text-center text-body font-bold text-white">Aktifkan Departure Gate</span>
-                </button>
-            </form>
-        @endif
-    </main>
-
-    @unless ($pengiriman->status->value === 'ditugaskan')
-        <div class="sticky bottom-0 z-20 mt-auto border-t border-line bg-white px-4 py-3">
-            <x-button :href="route('kurir.live', $task['id'])">Lanjut ke Live Location</x-button>
-        </div>
-    @endunless
+    </div>
 @endsection
