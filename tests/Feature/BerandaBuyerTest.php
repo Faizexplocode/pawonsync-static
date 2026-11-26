@@ -34,4 +34,18 @@ class BerandaBuyerTest extends TestCase
             ->assertSee(config('katalog.flash_sale.title'))
             ->assertSee('Berakhir');
     }
+
+    public function test_kategori_di_beranda_menautkan_ke_katalog_yang_terfilter(): void
+    {
+        $buyer = User::where('email', 'buyer@pawonsync.test')->firstOrFail();
+        $tautanTumpeng = route('buyer.katalog', ['q' => 'Tumpeng']);
+
+        $beranda = $this->actingAs($buyer)->get(route('buyer.beranda'));
+        $katalog = $this->get($tautanTumpeng);
+
+        $beranda->assertOk()->assertSee('href="'.$tautanTumpeng.'"', false);
+        $katalog->assertOk()
+            ->assertSee('Tumpeng Mini Syukuran')
+            ->assertDontSee('Nasi Box Ayam Geprek');
+    }
 }

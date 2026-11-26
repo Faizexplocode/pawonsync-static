@@ -4,70 +4,75 @@
 
 @php
     $items = [
-        ['Ps', 'Pesanan saya', 'Riwayat dan pesanan aktif', route('buyer.pesanan')],
-        ['Nt', 'Notifikasi', 'Status pesanan, progres dapur, kurir', route('buyer.notifikasi')],
-        ['Kt', 'Katalog menu', 'Cari menu katering', route('buyer.katalog')],
-        ['Kr', 'Keranjang', 'Lanjutkan checkout', route('buyer.keranjang')],
+        ['receipt', 'Pesanan saya', 'Riwayat dan pesanan aktif', route('buyer.pesanan')],
+        ['bell', 'Notifikasi', 'Status pesanan, progres dapur, kurir', route('buyer.notifikasi')],
+        ['search', 'Katalog menu', 'Cari menu katering', route('buyer.katalog')],
+        ['cart', 'Keranjang', 'Lanjutkan checkout', route('buyer.keranjang')],
     ];
 @endphp
 
 @section('content')
-    <header class="bg-[linear-gradient(147deg,var(--color-forest-deep)_0%,var(--color-leaf)_71.4%)]">
-        <div class="px-4 pb-5 pt-4">
-            <h1 class="text-[18px] font-bold text-white">Profil Saya</h1>
-            <p class="mt-0.5 text-caption text-mint">Buyer PawonSync</p>
-        </div>
-        <div class="flex items-center gap-3.5 px-4 pb-[18px]">
-            <span class="grid size-16 shrink-0 place-items-center rounded-full bg-mint text-[23px] font-bold text-forest">{{ strtoupper(substr($buyer->nama, 0, 2)) }}</span>
-            <div class="min-w-0 flex-1 space-y-0.5">
-                <p class="truncate text-[17px] font-bold text-white">{{ $buyer->nama }}</p>
-                <p class="truncate text-caption text-mint">{{ $buyer->email }}</p>
-            </div>
-        </div>
-    </header>
+    <div class="flex-1 bg-cream">
+        <header class="px-5 pb-2 pt-5">
+            <p class="text-[12px] text-muted">Buyer PawonSync</p>
+            <h1 class="text-[20px] font-semibold text-ink">Profil saya</h1>
+        </header>
 
-    <main class="flex-1 space-y-4 p-4">
-        <div class="flex gap-2.5">
-            <div class="flex-1 space-y-0.5 rounded-2xl border border-line bg-white px-3.5 py-3">
-                <p class="text-[11px] font-medium text-muted">Pesanan</p>
-                <p class="text-[18px] font-bold text-ink">{{ $jumlahPesanan }}</p>
-            </div>
-            <div class="flex-1 space-y-0.5 rounded-2xl border border-line bg-white px-3.5 py-3">
-                <p class="text-[11px] font-medium text-muted">Ulasan</p>
-                <p class="text-[18px] font-bold text-ink">{{ $jumlahUlasan }}</p>
-            </div>
-        </div>
+        <main class="stagger space-y-6 px-5 pb-6 pt-3">
+            <section class="relative overflow-hidden rounded-[28px] bg-[linear-gradient(140deg,var(--color-forest-night)_0%,var(--color-forest)_55%,var(--color-leaf)_100%)] p-5 text-white">
+                <div class="pointer-events-none absolute -right-10 -top-10 size-44 rounded-full bg-white/5"></div>
+                <div class="relative flex items-center gap-3.5">
+                    <span class="grid size-16 shrink-0 place-items-center rounded-full bg-mint text-[22px] font-semibold text-forest ring-4 ring-white/15">{{ strtoupper(substr($buyer->nama, 0, 2)) }}</span>
+                    <div class="min-w-0 flex-1">
+                        <p class="truncate text-[18px] font-semibold">{{ $buyer->nama }}</p>
+                        <p class="truncate text-[12px] text-mint/80">{{ $buyer->email }}</p>
+                    </div>
+                </div>
+                <div class="relative mt-4 grid grid-cols-2 divide-x divide-white/15 rounded-[18px] bg-white/10 py-3 text-center">
+                    @foreach ([[$jumlahPesanan, 'Pesanan'], [$jumlahUlasan, 'Ulasan']] as [$nilai, $label])
+                        <div>
+                            <p class="tabular text-[22px] font-semibold" data-count-to="{{ $nilai }}">{{ $nilai }}</p>
+                            <p class="text-[11px] text-mint/80">{{ $label }}</p>
+                        </div>
+                    @endforeach
+                </div>
+            </section>
 
-        <p class="text-title font-bold text-ink">Pintasan</p>
-        <section class="divide-y divide-line rounded-[18px] border border-line bg-white px-4 py-1.5">
-            @foreach ($items as [$kode, $label, $catatan, $href])
-                <a href="{{ $href }}" class="flex items-center gap-3 py-2.5">
-                    <span class="grid size-9 shrink-0 place-items-center rounded-xl bg-mint-soft text-caption font-bold text-forest">{{ $kode }}</span>
-                    <span class="min-w-0 flex-1 space-y-0.5">
-                        <span class="block text-body font-semibold text-ink">{{ $label }}</span>
-                        <span class="block text-caption text-muted">{{ $catatan }}</span>
-                    </span>
-                    <span class="text-[18px] font-medium text-muted">›</span>
-                </a>
-            @endforeach
-        </section>
+            <section class="space-y-3">
+                <h2 class="text-[15px] font-semibold text-ink">Pintasan</h2>
+                <div class="surface divide-y divide-line/70 px-4">
+                    @foreach ($items as [$ikon, $label, $catatan, $href])
+                        <a href="{{ $href }}" class="flex items-center gap-3 py-3">
+                            <span class="grid size-10 shrink-0 place-items-center rounded-full bg-mint-faint text-forest"><x-icon :name="$ikon" class="size-[18px]" /></span>
+                            <span class="min-w-0 flex-1">
+                                <span class="block text-body font-medium text-ink">{{ $label }}</span>
+                                <span class="block truncate text-[12px] text-muted">{{ $catatan }}</span>
+                            </span>
+                            <x-icon name="chevron-right" class="size-4 shrink-0 text-muted" />
+                        </a>
+                    @endforeach
+                </div>
+            </section>
 
-        <p class="text-title font-bold text-ink">Ubah Profil</p>
-        <form action="{{ route('buyer.profil.update') }}" method="post" class="space-y-3.5 rounded-[18px] border border-line bg-white px-4 py-3.5">
-            @csrf
-            @method('PATCH')
-            <x-field label="Nama" name="nama" :value="old('nama', $buyer->nama)" required />
-            <x-field label="Email" name="email" type="email" :value="old('email', $buyer->email)" required />
-            <x-field label="Password baru" name="password" type="password" placeholder="Kosongkan jika tidak diubah" autocomplete="new-password" />
-            <x-field label="Konfirmasi password" name="password_confirmation" type="password" placeholder="Ulangi password baru" autocomplete="new-password" />
-            <x-button type="submit">Simpan Perubahan</x-button>
-        </form>
+            <section class="space-y-3">
+                <h2 class="text-[15px] font-semibold text-ink">Ubah profil</h2>
+                <form action="{{ route('buyer.profil.update') }}" method="post" class="surface space-y-3.5 p-4">
+                    @csrf
+                    @method('PATCH')
+                    <x-field label="Nama" name="nama" :value="old('nama', $buyer->nama)" required />
+                    <x-field label="Email" name="email" type="email" :value="old('email', $buyer->email)" required />
+                    <x-field label="Password baru" name="password" type="password" placeholder="Kosongkan jika tidak diubah" autocomplete="new-password" />
+                    <x-field label="Konfirmasi password" name="password_confirmation" type="password" placeholder="Ulangi password baru" autocomplete="new-password" />
+                    <x-button pill type="submit">Simpan Perubahan</x-button>
+                </form>
+            </section>
 
-        <form action="{{ route('logout') }}" method="post">
-            @csrf
-            <x-button type="submit" variant="outline">Keluar</x-button>
-        </form>
-    </main>
+            <form action="{{ route('logout') }}" method="post" class="text-center">
+                @csrf
+                <button type="submit" class="text-[13px] font-medium text-muted underline-offset-4 hover:underline">Keluar dari akun</button>
+            </form>
+        </main>
+    </div>
 
     <x-bottom-nav role="buyer" active="buyer.profil" />
 @endsection

@@ -51,6 +51,7 @@
         'chef' => '<path d="M7 13a4 4 0 1 1 .8-7.9 5 5 0 0 1 9.4 0A4 4 0 1 1 17 13"/><path d="M7 13v7h10v-7"/><path d="M9 17h6"/>',
         'bike' => '<circle cx="6" cy="17" r="3"/><circle cx="18" cy="17" r="3"/><path d="M9 17h4l3-7h-3l-3 7Zm0 0-3-7H4"/><path d="M14 6h3"/>',
         'navigation' => '<path d="m3 11 18-8-8 18-2-8-8-2Z"/>',
+        'tumpeng' => '<path d="M12 3 5 17h14Z"/><path d="M8.5 10h7"/><path d="M3 21h18"/>',
         'dot' => '<circle cx="12" cy="12" r="3"/>',
     ];
 @endphp
